@@ -27,21 +27,22 @@ month. The image is built on GitHub, so the server never compiles anything.
    ssh root@<server> bash setup.sh
    ```
 
-   It installs Docker and opens ports 80 and 443. It also creates a `deploy` user and gives that
-   user a new SSH key for GitHub Actions. At the end it prints everything to enter in the next step.
+   It installs Docker and opens ports 80 and 443. It also creates a `deploy` user and issues an
+   SSH key for GitHub Actions. At the end it prints everything to enter in the next step.
 
 2. In the repository, open **Settings → Secrets and variables → Actions** and add:
 
-   | Kind     | Name                 | Value                                                              |
-   |----------|----------------------|--------------------------------------------------------------------|
-   | Variable | `DEPLOY_HOST`        | The server's IP address or host name.                              |
-   | Variable | `DEPLOY_USER`        | `deploy` (the default).                                            |
-   | Variable | `DOMAIN`             | Optional. The site's domain, e.g. `app.example.com`.               |
-   | Secret   | `DEPLOY_SSH_KEY`     | The private key printed by `setup.sh`.                             |
+   | Kind     | Name                 | Value                                                                |
+   |----------|----------------------|----------------------------------------------------------------------|
+   | Variable | `DEPLOY_HOST`        | The server's IP address or host name.                                |
+   | Variable | `DEPLOY_USER`        | `deploy` (the default).                                              |
+   | Variable | `DOMAIN`             | Optional. The site's domain, e.g. `app.example.com`.                 |
+   | Secret   | `DEPLOY_SSH_KEY`     | The private key printed by `setup.sh`.                               |
    | Secret   | `DEPLOY_KNOWN_HOSTS` | The host keys printed by `setup.sh`. They pin the server's identity. |
-   | Secret   | `APP_ENV`            | Optional. The application's environment, one `NAME=value` per line. |
+   | Secret   | `APP_ENV`            | Optional. The application's environment, one `NAME=value` per line.  |
 
-   Then delete the private key from the server, using the command `setup.sh` printed.
+   The private key is not kept on the server, so copy it before closing the session. Running
+   `setup.sh` again issues a new one in place of the old.
 
 3. If you set `DOMAIN`, add a DNS `A` record that points it at the server. Caddy can't get a
    certificate until that record resolves. Without `DOMAIN`, the site is served over plain HTTP at

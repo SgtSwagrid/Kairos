@@ -1,0 +1,526 @@
+package com.alecdorrington.client
+package views
+
+import com.alecdorrington.client.components.Display.*
+import com.alecdorrington.client.net.Api
+import com.alecdorrington.common.api.Report
+import com.alecdorrington.common.model.*
+import com.alecdorrington.common.solve.{Forecast, Verdict}
+import com.raquo.laminar.api.L.{*, given}
+import scala.scalajs.js
+import scala.scalajs.js.annotation.JSExportTopLevel
+
+/**
+  * The organiser's view of one poll, at URL `/polls/{poll}`.
+  *
+  * The page is arranged around the decision rather than around the data: what
+  * to book, how sure that is, and whether it is worth asking anything further.
+  * The guest list and the settings come last, because they are means rather
+  * than ends.
+  */
+@JSExportTopLevel("OrganiserView")
+object OrganiserView extends View:
+
+  /** The identifier of the poll being shown. */
+  private val poll: String = Route.poll.getOrElse("")
+
+  /** How many questions the next round may contain. */
+  private val budget = Var(40)
+
+  /** How many questions to put to any one participant. */
+  private val each = Var(2)
+
+  /** The report as the server last described it. */
+  private val current = Var(Option.empty[Report])
+
+  /** Requests for a fresh report, as a round size to ask for. */
+  private val requests = EventBus[(Int, Int)]()
+
+  /** Whether the poll could not be loaded. */
+  private val failed = Var(false)
+
+  override protected def content = div(
+    cls("page"),
+
+    // Reload whenever the round size changes, or when asked to.
+    reports --> (report => current.set(Some(report))),
+    onMountCallback(_ => requests.emit((budget.now(), each.now()))),
+    budget.signal.changes.map(size => (size, each.now())) --> requests.writer,
+    each.signal.changes.map(per => (budget.now(), per)) --> requests.writer,
+
+    child <--
+      current
+        .signal
+        .combineWith(failed.signal)
+        .map: (report, broken) =>
+          (report, broken) match
+            case (_, true)         => missing
+            case (None, _)         => div(cls("lede"), "Working it out…")
+            case (Some(report), _) => dashboard(report),
+  )
+
+  /**
+    * Fresh reports, one for each request, with a failure recorded rather than
+    * thrown so that a deleted poll shows a message instead of a blank page.
+    */
+  private def reports: EventStream[Report] = requests
+    .events
+    .flatMapSwitch: (size, per) =>
+      Api
+        .read(poll, size, per)
+        .recover:
+          case _ =>
+            failed.set(true)
+            None
+
+  /** The page shown when there is no such poll. */
+  private def missing: HtmlElement = div(
+    h1("No such poll"),
+    p(
+      cls("lede"),
+      "It may have been deleted. ",
+      a(href("/"), "Start again"),
+    ),
+  )
+
+  /** The whole dashboard for a loaded report. */
+  private def dashboard(report: Report): HtmlElement = div(
+    div(
+      cls("masthead"),
+      div(
+        h1(report.poll.title),
+        p(
+          cls("lede"),
+          cls("small"),
+          s"${ report.poll.slots.size } candidate options across " +
+            s"${ report.poll.slots.map(_.venue).distinct.size } venues, " +
+            s"${ report.poll.participants.size } guests.",
+        ),
+      ),
+      div(
+        cls("row"),
+        badge(
+          if report.poll.round == 0 then "Nothing asked yet"
+          else s"Round ${ report.poll.round } sent",
+        ),
+        a(href("/"), cls("small"), "All polls"),
+      ),
+    ),
+    div(
+      cls("stack"),
+      advice(report),
+      ranking(report),
+      round(report),
+      guests(report),
+      settings(report),
+    ),
+  )
+
+  /** What to book, and whether to book it yet. */
+  private def advice(report: Report): HtmlElement =
+    val verdict = report.analysis.verdict
+    panel(
+      "The recommendation",
+      "What to choose if the choice had to be made now.",
+    )(
+      verdict.best match
+        case None => p(
+            cls("faint"),
+            "This poll has no candidate options.",
+          )
+        case Some(best) => div(
+            h3(best.slot.venue, fontSize("21px")),
+            p(cls("faint"), best.slot.window.show),
+            div(
+              cls("figures"),
+              marginTop("16px"),
+              statistic(
+                percent(verdict.confidence.getOrElse(best.slot.id, 0.0)),
+                "chance it is best",
+              ),
+              statistic(
+                decimal(best.attendance),
+                "expected guests",
+              ),
+              statistic(
+                best.slot.capacity.toString,
+                "capacity",
+              ),
+              statistic(
+                percent(best.risk),
+                "chance of overflow",
+              ),
+              statistic(whole(best.slot.cost), "cost"),
+            ),
+            div(marginTop("16px"), attendanceBar(best)),
+            div(marginTop("18px"), stopping(verdict)),
+          ),
+    )
+
+  /** A bar showing expected attendance against a venue's capacity. */
+  private def attendanceBar(forecast: Forecast): HtmlElement = div(
+    div(
+      cls("spread"),
+      cls("tiny"),
+      cls("faint"),
+      span("Expected attendance against capacity"),
+      span(
+        cls("numeric"),
+        percent(forecast.utilisation),
+      ),
+    ),
+    bar(
+      forecast.utilisation,
+      risk(forecast.risk),
+    ),
+  )
+
+  /**
+    * Whether to ask anything further.
+    *
+    * The value of information is the whole basis of the advice, so it is stated
+    * in the units the organiser cares about: guests, not bits.
+    */
+  private def stopping(verdict: Verdict): HtmlElement =
+    if verdict.settled then
+      div(
+        cls("note"),
+        cls("settled"),
+        strong("Stop asking and book. "),
+        "Knowing everybody's diary perfectly would improve on this choice by " +
+          s"only ${ decimal(
+              verdict.information,
+            ) } guests, which is less than " +
+          "another round of questions is worth.",
+      )
+    else
+      div(
+        cls("note"),
+        strong("Worth another round. "),
+        s"Knowing everybody's diary perfectly would be worth about " +
+          s"${ decimal(verdict.information) } more guests than choosing now. " +
+          "That is the most any further asking could gain, so it is the number to " +
+          "watch: once it is small, stop.",
+      )
+
+  /** How the options stand against one another. */
+  private def ranking(report: Report): HtmlElement =
+    val verdict = report.analysis.verdict
+    val leader  = verdict.recommended.map(_.id)
+    panel(
+      "How the options stand",
+      "Chance of being best is the share of simulated turnouts in which an " +
+        "option comes out on top. Shortfall is how many guests choosing it " +
+        "would be expected to cost against whichever option turns out best.",
+    )(table(
+      thead(tr(
+        th("Venue"),
+        th("Dates"),
+        th(cls("figure-column"), "Best"),
+        th(cls("figure-column"), "Guests"),
+        th(cls("figure-column"), "Of capacity"),
+        th(cls("figure-column"), "Overflow"),
+        th(cls("figure-column"), "Shortfall"),
+      )),
+      tbody(
+        verdict
+          .forecasts
+          .take(8)
+          .map: forecast =>
+            tr(
+              cls.toggle("leading") := leader.contains(forecast.slot.id),
+              td(forecast.slot.venue),
+              td(
+                cls("small"),
+                forecast.slot.window.showBrief,
+              ),
+              td(
+                cls("figure-column"),
+                percent(verdict.confidence.getOrElse(forecast.slot.id, 0.0)),
+              ),
+              td(
+                cls("figure-column"),
+                decimal(forecast.attendance),
+              ),
+              td(
+                cls("figure-column"),
+                percent(forecast.utilisation),
+              ),
+              td(
+                cls("figure-column"),
+                percent(forecast.risk),
+              ),
+              td(
+                cls("figure-column"),
+                decimal(verdict.regret.getOrElse(forecast.slot.id, 0.0)),
+              ),
+            ),
+      ),
+    ))
+
+  /** The next round of questions, and the means of sending it. */
+  private def round(report: Report): HtmlElement =
+    val next = report.analysis.round
+    panel(
+      "What to ask next",
+      "Chosen to change the decision as much as possible per question asked, " +
+        "preferring broad periods to named dates so that nobody is asked to " +
+        "hold a weekend that may not happen.",
+    )(
+      if next.enquiries.isEmpty then
+        p(
+          cls("faint"),
+          "There is nothing worth asking. Either everyone has answered, or no " +
+            "answer would change the choice.",
+        )
+      else
+        div(
+          div(
+            cls("figures"),
+            statistic(
+              next.enquiries.size.toString,
+              "questions",
+            ),
+            statistic(
+              next.recipients.toString,
+              "guests to contact",
+            ),
+            statistic(
+              decimal(
+                next.enquiries.size.toDouble / math.max(1, next.recipients),
+              ),
+              "questions each",
+            ),
+            statistic(
+              percent(next.coverage),
+              "of what's left to learn",
+            ),
+          ),
+          div(
+            cls("row"),
+            marginTop("18px"),
+            button(
+              s"Send these ${ next.enquiries.size } questions",
+              onClick.flatMapTo(
+                Api.sendRound(poll, budget.now(), each.now()),
+              ) --> (report => current.set(Some(report))),
+            ),
+            span(
+              cls("small"),
+              cls("faint"),
+              "Records the questions against each guest, so their link shows " +
+                "exactly what was sent.",
+            ),
+          ),
+          h3(
+            "The questions",
+            marginTop("22px"),
+            marginBottom("8px"),
+          ),
+          div(
+            cls("scroll"),
+            table(
+              thead(tr(
+                th("Guest"),
+                th("Question"),
+                th(cls("figure-column"), "Bits"),
+                th(width("90px"), "Worth"),
+              )),
+              tbody(
+                next
+                  .enquiries
+                  .map: enquiry =>
+                    tr(
+                      td(
+                        report
+                          .poll
+                          .participantsById
+                          .get(enquiry.participant)
+                          .map(_.name)
+                          .getOrElse("Unknown"),
+                      ),
+                      td(
+                        cls("small"),
+                        enquiry
+                          .question
+                          .prompt(
+                            report.poll.slotsById,
+                            report.poll.length,
+                          ),
+                      ),
+                      td(
+                        cls("figure-column"),
+                        cls("tiny"),
+                        precise(enquiry.value),
+                      ),
+                      td(bar(
+                        enquiry.value /
+                          next.enquiries.map(_.value).maxOption.getOrElse(1.0),
+                      )),
+                    ),
+              ),
+            ),
+          ),
+        ),
+    )
+
+  /** The guest list, with each guest's link and standing. */
+  private def guests(report: Report): HtmlElement =
+    val belief = report.analysis.verdict.recommended
+    panel(
+      "Guests",
+      "Each guest answers at their own link. Nothing on their page reveals the " +
+        "guest list, the weightings, or which dates are winning.",
+    )(div(
+      cls("scroll"),
+      table(
+        thead(tr(
+          th("Guest"),
+          th(cls("figure-column"), "Weight"),
+          th(cls("figure-column"), "Answered"),
+          th(cls("figure-column"), "Waiting"),
+          th("Link"),
+        )),
+        tbody(
+          report
+            .poll
+            .participants
+            .map: participant =>
+              val link = Route.answering(poll, participant.id.value)
+              tr(
+                td(participant.name),
+                td(
+                  cls("figure-column"),
+                  decimal(participant.weight),
+                ),
+                td(
+                  cls("figure-column"),
+                  report.poll.responsesBy(participant.id).size.toString,
+                ),
+                td(
+                  cls("figure-column"),
+                  report.poll.pendingBy(participant.id).size.toString,
+                ),
+                td(
+                  cls("row"),
+                  a(href(link), cls("small"), "open"),
+                  button(
+                    cls("quiet"),
+                    cls("tiny"),
+                    padding("2px 8px"),
+                    "copy",
+                    onClick --> (_ => copy(link)),
+                  ),
+                ),
+              ),
+        ),
+      ),
+    ))
+
+  /** The settings governing both the advice and the questions. */
+  private def settings(report: Report): HtmlElement =
+    val objective = report.poll.objective
+    panel(
+      "Settings",
+      "The first two govern how much is asked at a time. The rest govern what " +
+        "counts as a good choice, and are worth a moment's thought: the " +
+        "discretion setting in particular decides whether dates get named early.",
+    )(div(
+      cls("grid"),
+      counter("Questions per round", budget, 1, 200),
+      counter("Questions per guest", each, 1, 10),
+      tuning(
+        "Cost of naming a date",
+        objective.discretion,
+        0.5,
+        "How much dearer it is to ask about a named date than a whole period. " +
+          "Above one, broad questions come first.",
+      )(value => objective.copy(discretion = value)),
+      tuning(
+        "Chance any date suits",
+        objective.prior,
+        0.05,
+        "What to assume before anyone answers. Lower it when attending is a " +
+          "real imposition, as for long-haul travel.",
+      )(value => objective.copy(prior = value)),
+      tuning(
+        "Penalty per guest over capacity",
+        objective.overflowWeight,
+        0.5,
+        "Should exceed one: turning away a guest who has accepted costs more " +
+          "than never inviting them.",
+      )(value => objective.copy(overflowWeight = value)),
+      tuning(
+        "Guests worth one unit of cost",
+        objective.costWeight,
+        0.001,
+        "Leave at zero to ignore cost and choose purely on attendance.",
+      )(value => objective.copy(costWeight = value)),
+    ))
+
+  /** A whole-number setting held on the client alone. */
+  private def counter
+    (
+      name: String,
+      held: Var[Int],
+      least: Int,
+      most: Int,
+    )
+    : HtmlElement = label(
+    cls("field"),
+    name,
+    input(
+      typ("number"),
+      stepAttr("1"),
+      minAttr(least.toString),
+      maxAttr(most.toString),
+      controlled(
+        value <-- held.signal.map(_.toString),
+        onInput.mapToValue.map(_.toIntOption) -->
+          (entered =>
+            entered.map(math.max(least, _).min(most)).foreach(held.set)
+          ),
+      ),
+    ),
+  )
+
+  /**
+    * A setting belonging to the poll's objective, saved to the server on
+    * change.
+    */
+  private def tuning
+    (
+      name: String,
+      held: Double,
+      step: Double,
+      hint: String,
+    )
+    (revise: Double => Objective)
+    : HtmlElement = label(
+    cls("field"),
+    name,
+    input(
+      typ("number"),
+      stepAttr(step.toString),
+      minAttr("0"),
+      value(held.toString),
+      onChange
+        .mapToValue
+        .map(_.toDoubleOption)
+        .collect { case Some(entered) => entered }
+        .flatMap(entered => Api.retarget(poll, revise(entered))) -->
+        (report => current.set(Some(report))),
+    ),
+    span(cls("tiny"), cls("faint"), hint),
+  )
+
+  /**
+    * Puts text on the clipboard.
+    *
+    * Reached through [[js.Dynamic]] rather than a typed binding, because the
+    * clipboard is absent on insecure origins and older browsers, and a failure
+    * to copy a link should not take the page down with it.
+    */
+  private def copy(text: String): Unit =
+    try js.Dynamic.global.navigator.clipboard.writeText(text)
+    catch case _: Throwable => ()

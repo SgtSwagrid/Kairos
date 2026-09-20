@@ -1,0 +1,161 @@
+import Assets.*
+import IdeSettings.packagePrefix
+import org.scalajs.sbtplugin.ScalaJSPlugin
+import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.*
+import sbt.{*, given}
+import sbt.Keys.*
+import sbtassembly.AssemblyPlugin.autoImport.*
+import scala.language.implicitConversions
+import spray.revolver.RevolverCorePlugin.autoImport.*
+import spray.revolver.RevolverPlugin.autoImport.*
+
+/** The collection of all subprojects that make up this project. */
+object Subprojects:
+
+  /** The base package prefix shared across all subprojects. */
+  private val projectRoot = "com.alecdorrington"
+
+  /** The server subproject, responsible for persistence and HTTP requests. */
+  lazy val server: Project = project
+    .in(file("server"))
+    .dependsOn(client, commonJvm)
+    .settings(
+      name                 := s"${ (ThisBuild / name).value }-server",
+      packagePrefix        := s"$projectRoot.server",
+      Compile / mainClass  := Some(s"$projectRoot.server.Main"),
+      Compile / run / fork := true,
+
+      // Server dependencies:
+      Dependencies.tapirCommon,
+      Dependencies.tapirServer,
+      Dependencies.assetLoader,
+      Dependencies.logging,
+      Dependencies.fs2,
+      Dependencies.circe,
+      Dependencies.cats,
+      Dependencies.munitCatsEffect,
+
+      // Fat JAR assembly settings (used by `sbt assemble`):
+      assembly / assemblyOutputPath    := Def.uncached(file("app.jar")),
+      assembly / assemblyMergeStrategy := {
+        case PathList("META-INF", "services", _*) => MergeStrategy.concat
+        case PathList("META-INF", _*)             => MergeStrategy.discard
+        case "module-info.class"                  => MergeStrategy.discard
+        case "reference.conf"                     => MergeStrategy.concat
+        case _                                    => MergeStrategy.first
+      },
+
+      // Copy Scala.js output and client resources into server managed resources:
+      copyFastJsTaskKey := Def.uncached(copyFastJsTask.value),
+      copyFullJsTaskKey := Def.uncached {
+        deleteSourcesTask.value
+        copyFullJsTask.value
+      },
+      copyAssetsTaskKey  := Def.uncached(copyAssetsTask.value),
+      copySourcesTaskKey := Def.uncached(copySourcesTask.value),
+
+      Compile / run := (Compile / run).dependsOn(copyAssetsTaskKey).evaluated,
+
+      javaOptions ++= Seq(
+        setProperty("app.name", (ThisBuild / name).value),
+        setProperty(
+          "app.version",
+          (ThisBuild / version).value,
+        ),
+        setProperty(
+          "assets.dir",
+          (Compile / resourceManaged).value / "assets",
+        ),
+        // Anchored to the project root rather than left to the working
+        // directory, which for a forked run is the subproject's own directory.
+        setProperty(
+          "data.file",
+          (ThisBuild / baseDirectory).value / "data" / "polls.json",
+        ),
+      ),
+
+      // Enable hot reload:
+      reStart :=
+        reStart
+          .dependsOn(
+            copyFastJsTaskKey,
+            copyAssetsTaskKey,
+            copySourcesTaskKey,
+          )
+          .evaluated,
+      reStart / javaOptions ++= Seq(setProperty("dev.mode", true)),
+
+      // Watch for source changes in all subprojects:
+      Compile / watchSources ++=
+        Def.uncached((client / Compile / sources).value),
+      Compile / watchSources ++=
+        Def.uncached((commonJvm / Compile / sources).value),
+      Compile / watchSources ++=
+        Def.uncached((commonJs / Compile / sources).value),
+    )
+
+  /** The client subproject, responsible for rendering and user input. */
+  lazy val client: Project = project
+    .in(file("client"))
+    .dependsOn(commonJs)
+    .enablePlugins(ScalaJSPlugin)
+    .settings(
+      name          := s"${ (ThisBuild / name).value }-client",
+      packagePrefix := s"$projectRoot.client",
+
+      // Client dependencies:
+      Dependencies.scalajs,
+      Dependencies.laminar,
+      Dependencies.circe,
+      Dependencies.cats,
+      Dependencies.munitCatsEffect,
+
+      // Enable source maps in dev builds, with paths relativised to the
+      // project root so the browser can fetch them from the dev server:
+      Compile / fastLinkJS / scalaJSLinkerConfig :=
+        scalaJSLinkerConfig
+          .value
+          .withSourceMap(true)
+          .withRelativizeSourceMapBase(Some(
+            (ThisBuild / baseDirectory).value.toURI,
+          )),
+    )
+
+  /**
+    * The common subproject, with code that is shared between client and server.
+    * Cross-compiled for JVM and JS via sbt's built-in project matrix.
+    */
+  lazy val common: ProjectMatrix = projectMatrix
+    .in(file("common"))
+    .settings(
+      name          := s"${ (ThisBuild / name).value }-common",
+      packagePrefix := s"$projectRoot.common",
+
+      // Common dependencies:
+      Dependencies.circe,
+      Dependencies.cats,
+      Dependencies.munitCatsEffect,
+    )
+    .jvmPlatform(scalaVersions = Seq(CompilerSettings.scala3))
+    .jsPlatform(scalaVersions = Seq(CompilerSettings.scala3))
+
+  /** The JVM variant of the common subproject. */
+  lazy val commonJvm: Project = common.jvm(CompilerSettings.scala3)
+
+  /** The JS variant of the common subproject. */
+  lazy val commonJs: Project = common.js(CompilerSettings.scala3)
+
+  /**
+    * Helper method for setting a Java system property from an SBT setting.
+    *
+    * @param key
+    *   The name of the system property to set.
+    *
+    * @param obj
+    *   The value to set the system property to (converted to a string).
+    *
+    * @return
+    *   A JVM command-line argument that sets the system property.
+    */
+  private def setProperty(key: String, obj: Any): String =
+    s"-D$key=${ obj.toString }"

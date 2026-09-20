@@ -35,6 +35,3 @@ metals.sbt
 .claude/settings.local.json
 .claude/worktrees/
 .playwright-mcp/
-
-# Saved polls.
-data/

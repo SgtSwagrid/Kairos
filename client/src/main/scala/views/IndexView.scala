@@ -2,9 +2,8 @@ package com.alecdorrington.client
 package views
 
 import com.alecdorrington.client.components.Display.*
-import com.alecdorrington.client.net.Api
+import com.alecdorrington.client.net.{Api, Recent}
 import com.alecdorrington.common.api.Report
-import com.alecdorrington.common.model.Poll
 import com.raquo.laminar.api.L.{*, given}
 import scala.scalajs.js.annotation.JSExportTopLevel
 
@@ -12,15 +11,14 @@ import scala.scalajs.js.annotation.JSExportTopLevel
 @JSExportTopLevel("IndexView")
 object IndexView extends View:
 
-  /** The polls already on the server. */
-  private val existing = Var(List.empty[Poll])
+  /** The polls this browser has opened before. */
+  private val existing = Var(Recent.all)
 
   /** Whether a poll is being created, so the button can be disabled. */
   private val creating = Var(false)
 
   override protected def content = div(
     cls("page"),
-    Api.polls.recover { case _ => Some(Nil) } --> existing,
     div(
       cls("masthead"),
       div(
@@ -44,6 +42,9 @@ object IndexView extends View:
   /** A newly created example poll, with failure leaving the button usable. */
   private def created: EventStream[Report] = Api
     .example
+    .map: report =>
+      Recent.remember(Recent(report.poll.id.value, report.poll.title))
+      report
     .recover:
       case _ =>
         creating.set(false)
@@ -118,34 +119,26 @@ object IndexView extends View:
   ))
 
   /** The polls already on this server. */
-  private def saved(polls: List[Poll]): HtmlElement = panel(
-    "Polls on this server",
-    "",
+  private def saved(polls: List[Recent]): HtmlElement = panel(
+    "Polls you have opened",
+    "Kept in this browser alone. A poll's link is what keeps it private, so " +
+      "the server will not list them; if you lose a link, it is lost.",
   )(table(
-    thead(tr(
-      th("Event"),
-      th("Options"),
-      th("Guests"),
-      th("Rounds sent"),
-    )),
+    thead(tr(th("Event"), th("Link"))),
     tbody(
       polls.map: poll =>
         tr(
-          td(a(
-            href(Route.organiser(poll.id.value)),
-            poll.title,
-          )),
+          td(a(href(Route.organiser(poll.id)), poll.title)),
           td(
-            cls("figure-column"),
-            poll.slots.size.toString,
-          ),
-          td(
-            cls("figure-column"),
-            poll.participants.size.toString,
-          ),
-          td(
-            cls("figure-column"),
-            poll.round.toString,
+            button(
+              cls("quiet"),
+              cls("tiny"),
+              padding("2px 8px"),
+              "forget",
+              onClick --> (_ =>
+                Recent.forget(poll.id)
+                existing.set(Recent.all)),
+            ),
           ),
         ),
     ),

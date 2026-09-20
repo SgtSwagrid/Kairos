@@ -40,12 +40,6 @@ object PollApi:
     .summary("Create a worked example poll.")
 
   /**
-    * Lists every poll on the server, for the organiser to pick up where they
-    * left off.
-    */
-  val list = polls.get.out(jsonBody[List[Poll]]).summary("List every poll.")
-
-  /**
     * Reads a poll along with the solver's advice on it. The size of the next
     * round is a parameter of the request rather than of the poll, so that an
     * organiser can weigh a larger round against a smaller one before sending

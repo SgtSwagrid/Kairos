@@ -80,13 +80,22 @@ final case class Draft
     * Works this draft up into a poll, enumerating each venue's candidate
     * placements and assigning identifiers.
     *
+    * Identifiers are supplied rather than derived, because a participant's is
+    * the only thing standing between a stranger and their answers. Numbering
+    * them by position would let anybody holding one guest's link walk the rest.
+    *
     * @param id
     *   The identifier to give the new poll.
+    *
+    * @param identities
+    *   An unguessable identifier for each participant, in order. Any shortfall
+    *   is made up positionally, which is safe only in a test.
     *
     * @return
     *   The corresponding poll, with no answers yet recorded.
     */
-  def toPoll(id: Id[Poll]): Poll = Poll(
+  def toPoll
+    (id: Id[Poll], identities: Seq[Id[Participant]] = Seq.empty): Poll = Poll(
     id = id,
     title = title,
     slots = Slot.distinct(
@@ -104,7 +113,7 @@ final case class Draft
       .zipWithIndex
       .map: (participant, index) =>
         Participant(
-          id = Id(s"p$index"),
+          id = identities.lift(index).getOrElse(Id(s"p$index")),
           name = participant.name,
           weight = participant.weight,
         ),

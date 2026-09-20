@@ -31,9 +31,6 @@ object Api:
     Some(draft.asJson),
   )
 
-  /** Lists every poll on the server. */
-  def polls: EventStream[List[Poll]] = send[List[Poll]]("GET", "/api/polls")
-
   /**
     * Reads a poll along with the advice on it.
     *

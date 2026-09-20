@@ -7,8 +7,7 @@ import com.alecdorrington.common.api.*
 import com.alecdorrington.common.model.*
 import com.alecdorrington.common.solve.Analysis
 import com.alecdorrington.server.api.PollApi
-import com.alecdorrington.server.store.Polls
-import java.util.UUID
+import com.alecdorrington.server.store.{Polls, Tokens}
 import sttp.model.StatusCode
 
 /**
@@ -28,7 +27,7 @@ final class PollService(polls: Polls) extends Service("polls"):
   private val Each: Int = 2
 
   /** The greatest number of questions a round may be asked for. */
-  private val MostQuestions: Int = 500
+  private val MostQuestions: Int = 200
 
   /** The greatest number of questions any one participant may be asked for. */
   private val MostEach: Int = 20
@@ -41,11 +40,6 @@ final class PollService(polls: Polls) extends Service("polls"):
     .example
     .serverLogic(_ => started(Example.draft))
 
-  /** Lists every poll on the server. */
-  lazy val list: Endpoint = PollApi
-    .list
-    .serverLogic(_ => polls.all.map(Right(_)))
-
   /** Reads a poll along with the solver's advice on it. */
   lazy val read: Endpoint = PollApi
     .read
@@ -56,16 +50,16 @@ final class PollService(polls: Polls) extends Service("polls"):
   lazy val invite: Endpoint = PollApi
     .invite
     .serverLogic: (id, drafts) =>
-      amend(id): poll =>
-        val added = drafts
-          .zipWithIndex
-          .map: (draft, index) =>
-            Participant(
-              id = Id(s"p${ poll.participants.size + index }"),
-              name = draft.name,
-              weight = draft.weight,
-            )
-        poll.copy(participants = poll.participants ++ added)
+      Tokens
+        .several[Participant](drafts.size)
+        .flatMap: identities =>
+          amend(id): poll =>
+            val added = drafts
+              .lazyZip(identities)
+              .map((draft, identity) =>
+                Participant(identity, draft.name, draft.weight),
+              )
+            poll.copy(participants = poll.participants ++ added)
 
   /** Revises what the organiser is trying to maximise. */
   lazy val retarget: Endpoint = PollApi
@@ -137,7 +131,6 @@ final class PollService(polls: Polls) extends Service("polls"):
   override lazy val api: List[Endpoint] = List(
     create,
     example,
-    list,
     read,
     invite,
     retarget,
@@ -241,11 +234,12 @@ final class PollService(polls: Polls) extends Service("polls"):
     * @return
     *   A report on the new poll.
     */
-  private def started(draft: Draft): IO[Either[StatusCode, Report]] =
-    IO(Id[Poll](UUID.randomUUID().toString.take(8)))
-      .flatMap(id => polls.put(draft.toPoll(id)))
-      .flatMap(report(_, None, None))
-      .map(Right(_))
+  private def started(draft: Draft): IO[Either[StatusCode, Report]] = for
+    id         <- Tokens.next[Poll]
+    identities <- Tokens.several[Participant](draft.participants.size)
+    poll       <- polls.put(draft.toPoll(id, identities))
+    reported   <- report(poll, None, None)
+  yield Right(reported)
 
   /** A poll together with the solver's advice on it. */
   private def report

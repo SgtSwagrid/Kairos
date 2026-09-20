@@ -146,13 +146,17 @@ sbt build
 
 ### Run the tests
 ```bash
-sbt "common/testOnly -- *"
-sbt "server/testOnly -- *"
+sbt test
 ```
-- The first includes the end-to-end simulation described above.
-- The second covers the store, including that concurrent answers neither go
-  missing nor corrupt the file.
-- Plain `sbt test` only reruns suites that have changed.
+- Runs the solver's tests on both the JVM and Scala.js, and the server's on the
+  JVM, which is what CI does.
+- The solver's suites include the end-to-end simulation described above; the
+  server's cover the store, including that concurrent answers neither go missing
+  nor corrupt the file.
+- Under sbt 2 this reruns only what has changed. Use `sbt "testOnly *"` to run
+  everything regardless.
+- The simulations are skipped on Scala.js, where they take minutes to re-check
+  what the JVM run has already shown.
 
 ### Format all code according to style rules
 ```bash

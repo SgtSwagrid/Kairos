@@ -4,8 +4,15 @@ package solve
 import com.alecdorrington.common.model.*
 import com.alecdorrington.common.solve.Fixture.*
 import munit.FunSuite
+import scala.concurrent.duration.{Duration, DurationInt}
 
 class ElicitationSuite extends FunSuite:
+
+  /**
+    * Generous, because these run on Scala.js too, where the solver is several
+    * times slower, and on a loaded build machine slower again.
+    */
+  override def munitTimeout: Duration = 5.minutes
 
   private val slots = Slot.enumerate(
     venue = "Hut",

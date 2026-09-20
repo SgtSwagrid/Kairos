@@ -4,6 +4,7 @@ package solve
 import com.alecdorrington.common.model.*
 import com.alecdorrington.common.solve.Fixture.*
 import munit.FunSuite
+import scala.concurrent.duration.{Duration, DurationInt}
 import scala.util.Random
 
 /**
@@ -21,6 +22,16 @@ import scala.util.Random
   * assertion tuned to one of them says nothing about the method.
   */
 class SimulationSuite extends FunSuite:
+
+  /**
+    * Run on the JVM alone. These are minutes of arithmetic that re-check what
+    * the JVM run has already shown, and on Scala.js they are slow enough to
+    * exceed the timeout and fail the build for no fault of the solver's.
+    */
+  override def munitIgnore: Boolean = !Fixture.onJvm
+
+  /** Generous, because a loaded build machine is much slower than a desktop. */
+  override def munitTimeout: Duration = 10.minutes
 
   /** The hidden guest lists to try, each the seed that generates one. */
   private val worlds = List(1987L, 4L, 12L, 99L, 2027L)

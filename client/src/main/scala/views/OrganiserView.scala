@@ -21,8 +21,15 @@ import scala.scalajs.js.annotation.JSExportTopLevel
 @JSExportTopLevel("OrganiserView")
 object OrganiserView extends View:
 
-  /** The identifier of the poll being shown. */
-  private val poll: String = Route.poll.getOrElse("")
+  /**
+    * The identifier of the poll being shown.
+    *
+    * A method rather than a value, because a value is read when this object is
+    * initialised, and exporting it to the page makes that happen as the script
+    * loads. Under Node, where the test bundle is linked and run, there is no
+    * `window` to read an address from, and the whole bundle fails to load.
+    */
+  private def poll: String = Route.poll.getOrElse("")
 
   /** How many questions the next round may contain. */
   private val budget = Var(40)

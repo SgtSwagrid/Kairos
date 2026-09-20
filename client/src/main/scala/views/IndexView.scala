@@ -11,14 +11,21 @@ import scala.scalajs.js.annotation.JSExportTopLevel
 @JSExportTopLevel("IndexView")
 object IndexView extends View:
 
-  /** The polls this browser has opened before. */
-  private val existing = Var(Recent.all)
+  /**
+    * The polls this browser has opened before, read once the page is mounted.
+    *
+    * Not read while this object is initialised: exporting it to the page makes
+    * that happen as the script loads, and under Node, where the test bundle is
+    * linked and run, there is no browser to read the list from.
+    */
+  private val existing = Var(List.empty[Recent])
 
   /** Whether a poll is being created, so the button can be disabled. */
   private val creating = Var(false)
 
   override protected def content = div(
     cls("page"),
+    onMountCallback(_ => existing.set(Recent.all)),
     masthead(
       "Kairos",
       "Choose when and where to hold something, by asking the people invited " +

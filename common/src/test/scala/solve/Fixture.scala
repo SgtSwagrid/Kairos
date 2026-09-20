@@ -7,6 +7,21 @@ import com.alecdorrington.common.model.*
 object Fixture:
 
   /**
+    * Whether these tests are running on the JVM rather than in a browser.
+    *
+    * The solver is cross-compiled, so its unit tests run on both and should:
+    * they have caught nothing platform-specific yet, but they are cheap and
+    * that is exactly the kind of fault they would catch. The end-to-end
+    * simulations are a different matter. They spend minutes of arithmetic to
+    * re-check behaviour the JVM run has already established, and on Scala.js
+    * they are slow enough to exceed the test timeout outright.
+    *
+    * Scala.js prints a whole [[Double]] without its fractional part, where the
+    * JVM keeps it. There is no tidier way to ask from shared source.
+    */
+  val onJvm: Boolean = 1.0.toString == "1.0"
+
+  /**
     * A slot at the given venue, beginning on the given day.
     *
     * @param venue

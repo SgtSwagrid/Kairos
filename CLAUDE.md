@@ -83,8 +83,14 @@ that one has already caught us once.
 ### Running it
 
 - `sbt dev` then [localhost:8080](http://localhost:8080); click "Create a worked example".
-- `sbt "common/testOnly -- *"` runs everything, including the end-to-end simulation.
-  Plain `sbt test` only reruns changed suites under sbt 2.
+- `sbt test` runs everything CI runs. **The solver's tests run on Scala.js as well
+  as the JVM**, and Scala.js is several times slower, so a suite that is
+  comfortable on the JVM can exceed munit's 30-second default there and fail the
+  build. Check both before pushing; `sbt "common/testOnly -- *"` alone will not
+  tell you. Note also that `-- *` is a framework option rather than a filter, and
+  Scala.js rejects it: use `sbt "testOnly *"` for a full run.
+- `SimulationSuite` is skipped on Scala.js through `munitIgnore`, being minutes of
+  arithmetic that re-checks what the JVM run has already established.
 
 ### Deployment
 

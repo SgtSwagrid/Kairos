@@ -136,14 +136,19 @@ class PollsSuite extends CatsEffectSuite:
       assertEquals(titles.last, "Poll 1")
 
   test("identifiers are unguessable"):
-    val exercise = for
-      polls        <- Tokens.several[Poll](64)
-      participants <- Tokens.several[Participant](64)
-    yield polls ++ participants.map(_.value).map(Id[Poll](_))
+    val exercise =
+      for
+        polls        <- Tokens.several[Poll](64)
+        participants <- Tokens.several[Participant](64)
+      yield polls ++ participants.map(_.value).map(Id[Poll](_))
 
     exercise.map: made =>
       val values = made.map(_.value)
-      assertEquals(values.distinct.size, values.size, "identifiers repeated")
+      assertEquals(
+        values.distinct.size,
+        values.size,
+        "identifiers repeated",
+      )
       assert(
         values.forall(_.lengthIs >= 32),
         s"too short to be unguessable: ${ values.take(2) }",

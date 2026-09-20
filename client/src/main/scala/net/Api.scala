@@ -19,6 +19,27 @@ import scala.scalajs.js
   * Laminar prefers to receive the result of a request: bind it to the DOM and
   * the subscription is torn down with the element that asked for it.
   */
+/**
+  * A request that did not succeed.
+  *
+  * The status is kept rather than folded into a message, because the views need
+  * to tell a poll that does not exist from one that could not be reached: the
+  * first calls for "no such poll" and the second for trying again, and saying
+  * the wrong one of those is worse than saying nothing.
+  *
+  * @param status
+  *   The HTTP status returned, or `0` if the request never arrived.
+  *
+  * @param url
+  *   What was being requested.
+  */
+final case class Failed
+  (status: Int, url: String)
+  extends Exception(s"$url: $status"):
+
+  /** Whether the thing asked for is genuinely not there. */
+  def absent: Boolean = status == 404
+
 object Api:
 
   /** Creates a worked example poll. */
@@ -142,11 +163,12 @@ object Api:
         options.asInstanceOf[dom.RequestInit],
       )
       .toFuture
+      .recoverWith { case _ => Future.failed(Failed(0, s"$method $url")) }
       .flatMap: response =>
         response
           .text()
           .toFuture
           .flatMap: text =>
             if !response.ok then
-              Future.failed(Exception(s"$method $url: ${ response.status }"))
+              Future.failed(Failed(response.status, s"$method $url"))
             else decode[A](text).fold(Future.failed, Future.successful)

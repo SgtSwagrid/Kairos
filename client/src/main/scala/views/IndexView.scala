@@ -43,7 +43,10 @@ object IndexView extends View:
   private def created: EventStream[Report] = Api
     .example
     .map: report =>
-      Recent.remember(Recent(report.poll.id.value, report.poll.title))
+      Recent.remember(Recent(
+        report.poll.id.value,
+        report.poll.title,
+      ))
       report
     .recover:
       case _ =>
@@ -128,18 +131,21 @@ object IndexView extends View:
     tbody(
       polls.map: poll =>
         tr(
-          td(a(href(Route.organiser(poll.id)), poll.title)),
-          td(
-            button(
-              cls("quiet"),
-              cls("tiny"),
-              padding("2px 8px"),
-              "forget",
-              onClick --> (_ =>
+          td(a(
+            href(Route.organiser(poll.id)),
+            poll.title,
+          )),
+          td(button(
+            cls("quiet"),
+            cls("tiny"),
+            padding("2px 8px"),
+            "forget",
+            onClick -->
+              (_ =>
                 Recent.forget(poll.id)
-                existing.set(Recent.all)),
-            ),
-          ),
+                existing.set(Recent.all)
+              ),
+          )),
         ),
     ),
   ))

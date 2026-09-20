@@ -95,7 +95,11 @@ final case class Draft
     *   The corresponding poll, with no answers yet recorded.
     */
   def toPoll
-    (id: Id[Poll], identities: Seq[Id[Participant]] = Seq.empty): Poll = Poll(
+    (
+      id: Id[Poll],
+      identities: Seq[Id[Participant]] = Seq.empty,
+    )
+    : Poll = Poll(
     id = id,
     title = title,
     slots = Slot.distinct(

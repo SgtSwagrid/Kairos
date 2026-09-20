@@ -2,11 +2,34 @@ package com.alecdorrington.client
 package views
 
 import com.alecdorrington.client.components.Display.*
-import com.alecdorrington.client.net.Api
+import com.alecdorrington.client.net.{Api, Failed}
 import com.alecdorrington.common.api.{Answer, Questionnaire}
 import com.alecdorrington.common.model.{Availability, Question}
 import com.raquo.laminar.api.L.{*, given}
 import scala.scalajs.js.annotation.JSExportTopLevel
+
+/**
+  * How the last attempt to save the answers went.
+  *
+  * @param label
+  *   What the button should read.
+  *
+  * @param clickable
+  *   Whether pressing it again would do any good.
+  */
+enum Sending(val label: String, val clickable: Boolean):
+
+  /** Nothing has been sent, or an answer has changed since it was. */
+  case Idle extends Sending("Save my answers", true)
+
+  /** A save is in flight. */
+  case Saving extends Sending("Saving…", false)
+
+  /** The answers are safely recorded. */
+  case Saved extends Sending("Saved", false)
+
+  /** The save did not get through, and may be tried again. */
+  case Failed extends Sending("Try again", true)
 
 /**
   * The view on which one participant answers their questions, at URL
@@ -27,11 +50,11 @@ object RespondView extends View:
   /** The grade chosen for each question, including those already answered. */
   private val chosen = Var(Map.empty[Question, Availability])
 
-  /** Whether the latest answers have been sent. */
-  private val sent = Var(false)
+  /** How the last attempt to save went. */
+  private val sending = Var(Sending.Idle)
 
-  /** Whether the questionnaire could not be loaded. */
-  private val failed = Var(false)
+  /** Why the questionnaire could not be loaded, if it could not. */
+  private val failed = Var(Option.empty[Failed])
 
   override protected def content = div(
     cls("page"),
@@ -41,8 +64,9 @@ object RespondView extends View:
         .signal
         .combineWith(failed.signal)
         .map:
-          case (_, true)       => missing
-          case (None, _)       => div(cls("lede"), "Loading…")
+          case (_, Some(reason)) if reason.absent => missing
+          case (None, Some(_))                    => unreachable
+          case (None, None)    => div(cls("lede"), "Loading…")
           case (Some(form), _) => sheet(form),
   )
 
@@ -52,19 +76,33 @@ object RespondView extends View:
       case (Some(poll), Some(participant)) => Api
           .ask(poll, participant)
           .recover:
+            case reason: Failed =>
+              failed.set(Some(reason))
+              None
             case _ =>
-              failed.set(true)
+              failed.set(Some(Failed(0, "ask")))
               None
       case _ =>
-        failed.set(true)
+        failed.set(Some(Failed(404, "ask")))
         EventStream.empty
 
   /** Takes in a questionnaire from the server, adopting the answers in it. */
   private def receive(form: Questionnaire): Unit =
+    failed.set(None)
     questionnaire.set(Some(form))
     chosen.set(
       form.answered.map(answer => answer.question -> answer.availability).toMap,
     )
+
+  /** The page shown when the server could not be reached at all. */
+  private def unreachable: HtmlElement = div(
+    h1("Could not reach the organiser"),
+    p(
+      cls("lede"),
+      "Your link is probably fine; the request did not get through. Please " +
+        "try again in a moment.",
+    ),
+  )
 
   /** The page shown when the link does not correspond to anybody. */
   private def missing: HtmlElement = div(
@@ -118,30 +156,37 @@ object RespondView extends View:
       cls("row"),
       marginTop("18px"),
       button(
-        child.text <--
-          sent.signal.map(if _ then "Saved" else "Save my answers"),
+        child.text <-- sending.signal.map(_.label),
+        // Disabled while a save is in flight as well as once it is done: two
+        // clicks would send two sets of answers and two writes to the store.
         disabled <--
           chosen
             .signal
-            .combineWith(sent.signal)
-            .map((answers, saved) => answers.isEmpty || saved),
-        onClick.mapTo(false) --> sent,
+            .combineWith(sending.signal)
+            .map((answers, state) => answers.isEmpty || !state.clickable),
+        onClick.mapTo(Sending.Saving) --> sending,
         onClick.flatMapTo(submitted) -->
-          (form =>
-            receive(form)
-            sent.set(true)
+          (outcome =>
+            outcome.foreach(receive)
+            sending.set(outcome.fold(Sending.Failed)(_ => Sending.Saved))
           ),
       ),
       child.maybe <--
-        sent
+        sending
           .signal
-          .map(saved =>
-            Option.when(saved)(span(
-              cls("small"),
-              cls("faint"),
-              "Thank you. You may close this page.",
-            )),
-          ),
+          .map:
+            case Sending.Saved => Some(span(
+                cls("small"),
+                cls("faint"),
+                "Thank you. You may close this page.",
+              ))
+            case Sending.Failed => Some(span(
+                cls("small"),
+                color("var(--bad)"),
+                "That did not save. Please try again; nothing has been " +
+                  "recorded.",
+              ))
+            case _ => None,
       child.maybe <--
         chosen
           .signal
@@ -156,7 +201,7 @@ object RespondView extends View:
   )
 
   /** Sends whatever has been chosen, for the participant in the address. */
-  private def submitted: EventStream[Questionnaire] =
+  private def submitted: EventStream[Option[Questionnaire]] =
     (Route.poll, Route.participant) match
       case (Some(poll), Some(participant)) => Api
           .answer(
@@ -167,9 +212,9 @@ object RespondView extends View:
               .toList
               .map((question, grade) => Answer(question, grade)),
           )
-          .recover:
-            case _ => None
-      case _ => EventStream.empty
+          .map(Option(_))
+          .recover { case _ => Some(None) }
+      case _ => EventStream.fromValue(None)
 
   /** One question, with a graded answer to choose from. */
   private def question(subject: Question, prompt: String): HtmlElement = div(
@@ -190,7 +235,7 @@ object RespondView extends View:
               onChange.mapTo(grade) -->
                 (picked =>
                   chosen.update(_.updated(subject, picked))
-                  sent.set(false)
+                  sending.set(Sending.Idle)
                 ),
             ),
             grade.label,

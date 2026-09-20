@@ -11,11 +11,11 @@ import java.util.HexFormat
   * Identifiers that double as the only thing keeping a poll private.
   *
   * Kairos has no accounts. Whoever holds the link to a poll can see its advice,
-  * and whoever holds a participant's link can answer as them, so those links are
-  * the access control and the identifiers in them have to be unguessable. Short
-  * or sequential identifiers would not merely be untidy: with a poll's link in
-  * hand, participants numbered `p0` upwards can be walked through one at a time
-  * to read the whole guest list and overwrite anybody's answers.
+  * and whoever holds a participant's link can answer as them, so those links
+  * are the access control and the identifiers in them have to be unguessable.
+  * Short or sequential identifiers would not merely be untidy: with a poll's
+  * link in hand, participants numbered `p0` upwards can be walked through one
+  * at a time to read the whole guest list and overwrite anybody's answers.
   */
 object Tokens:
 
@@ -48,5 +48,6 @@ object Tokens:
     * @return
     *   That many distinct identifiers.
     */
-  def several[Entity](count: Int): IO[List[Id[Entity]]] =
-    List.fill(count)(()).traverse(_ => next[Entity])
+  def several[Entity](count: Int): IO[List[Id[Entity]]] = List
+    .fill(count)(())
+    .traverse(_ => next[Entity])

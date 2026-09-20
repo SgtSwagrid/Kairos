@@ -1,9 +1,9 @@
 package com.alecdorrington.client
 package net
 
+import io.circe.{Codec, Decoder, Encoder}
 import io.circe.parser.decode
 import io.circe.syntax.*
-import io.circe.{Codec, Decoder, Encoder}
 import org.scalajs.dom
 import scala.util.Try
 
@@ -64,6 +64,6 @@ object Recent:
   ).toOption.flatten.flatMap(decode[List[Recent]](_).toOption)
 
   /** Writes the list, ignoring a browser that refuses to store it. */
-  private def write(polls: List[Recent]): Unit =
-    Try(dom.window.localStorage.setItem(Store, polls.asJson.noSpaces)).toOption
-      .getOrElse(())
+  private def write(polls: List[Recent]): Unit = Try(
+    dom.window.localStorage.setItem(Store, polls.asJson.noSpaces),
+  ).toOption.getOrElse(())

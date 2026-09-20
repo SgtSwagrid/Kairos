@@ -2,7 +2,7 @@ package com.alecdorrington.client
 package views
 
 import com.alecdorrington.client.components.Display.*
-import com.alecdorrington.client.net.Api
+import com.alecdorrington.client.net.{Api, Failed}
 import com.alecdorrington.common.api.Report
 import com.alecdorrington.common.model.*
 import com.alecdorrington.common.solve.{Forecast, Verdict}
@@ -36,28 +36,43 @@ object OrganiserView extends View:
   /** Requests for a fresh report, as a round size to ask for. */
   private val requests = EventBus[(Int, Int)]()
 
-  /** Whether the poll could not be loaded. */
-  private val failed = Var(false)
+  /**
+    * Why the poll could not be loaded, if it could not. Cleared on success:
+    * left set, one dropped connection would have the organiser reading "no such
+    * poll" about an intact one for as long as the page stayed open.
+    */
+  private val failed = Var(Option.empty[Failed])
 
   override protected def content = div(
     cls("page"),
 
     // Reload whenever the round size changes, or when asked to.
-    reports --> (report => current.set(Some(report))),
-    onMountCallback(_ => requests.emit((budget.now(), each.now()))),
+    reports -->
+      (report =>
+        failed.set(None)
+        current.set(Some(report))
+      ),
+    onMountCallback(_ => reload()),
     budget.signal.changes.map(size => (size, each.now())) --> requests.writer,
     each.signal.changes.map(per => (budget.now(), per)) --> requests.writer,
 
+    // Kept outside the part that is rebuilt whenever a report arrives, so that
+    // the field being typed into is not replaced mid-keystroke.
+    rounds,
     child <--
       current
         .signal
         .combineWith(failed.signal)
         .map: (report, broken) =>
           (report, broken) match
-            case (_, true)         => missing
-            case (None, _)         => div(cls("lede"), "Working it out…")
+            case (_, Some(reason)) if reason.absent => missing
+            case (None, Some(reason))               => unreachable(reason)
+            case (None, None)      => div(cls("lede"), "Working it out…")
             case (Some(report), _) => dashboard(report),
   )
+
+  /** Asks for a fresh report at the size currently chosen. */
+  private def reload(): Unit = requests.emit((budget.now(), each.now()))
 
   /**
     * Fresh reports, one for each request, with a failure recorded rather than
@@ -69,8 +84,11 @@ object OrganiserView extends View:
       Api
         .read(poll, size, per)
         .recover:
+          case reason: Failed =>
+            failed.set(Some(reason))
+            None
           case _ =>
-            failed.set(true)
+            failed.set(Some(Failed(0, "read")))
             None
 
   /** The page shown when there is no such poll. */
@@ -80,6 +98,28 @@ object OrganiserView extends View:
       cls("lede"),
       "It may have been deleted. ",
       a(href("/"), "Start again"),
+    ),
+  )
+
+  /** The page shown when the poll may well exist but could not be reached. */
+  private def unreachable(reason: Failed): HtmlElement = div(
+    h1("Could not reach the server"),
+    p(
+      cls("lede"),
+      "The poll is most likely fine; the request did not get through" +
+        (if reason.status == 0 then "" else s" (${ reason.status })") + ".",
+    ),
+    button("Try again", onClick --> (_ => reload())),
+  )
+
+  /** How large the next round should be. Client-side only, so no reload here. */
+  private def rounds: HtmlElement = div(
+    cls("panel"),
+    marginBottom("18px"),
+    div(
+      cls("grid"),
+      counter("Questions per round", budget, 1, 200),
+      counter("Questions per guest", each, 1, 20),
     ),
   )
 
@@ -440,44 +480,80 @@ object OrganiserView extends View:
 
   /** The settings governing both the advice and the questions. */
   private def settings(report: Report): HtmlElement =
-    val objective = report.poll.objective
+    val edited = Var(report.poll.objective)
     panel(
       "Settings",
-      "The first two govern how much is asked at a time. The rest govern what " +
-        "counts as a good choice, and are worth a moment's thought: the " +
-        "discretion setting in particular decides whether dates get named early.",
-    )(div(
-      cls("grid"),
-      counter("Questions per round", budget, 1, 200),
-      counter("Questions per guest", each, 1, 10),
-      tuning(
-        "Cost of naming a date",
-        objective.discretion,
-        0.5,
-        "How much dearer it is to ask about a named date than a whole period. " +
-          "Above one, broad questions come first.",
-      )(value => objective.copy(discretion = value)),
-      tuning(
-        "Chance any date suits",
-        objective.prior,
-        0.05,
-        "What to assume before anyone answers. Lower it when attending is a " +
-          "real imposition, as for long-haul travel.",
-      )(value => objective.copy(prior = value)),
-      tuning(
-        "Penalty per guest over capacity",
-        objective.overflowWeight,
-        0.5,
-        "Should exceed one: turning away a guest who has accepted costs more " +
-          "than never inviting them.",
-      )(value => objective.copy(overflowWeight = value)),
-      tuning(
-        "Guests worth one unit of cost",
-        objective.costWeight,
-        0.001,
-        "Leave at zero to ignore cost and choose purely on attendance.",
-      )(value => objective.copy(costWeight = value)),
-    ))
+      "What counts as a good choice. Worth a moment's thought: the cost of " +
+        "naming a date in particular decides whether dates get named early.",
+    )(
+      div(
+        cls("grid"),
+        tuning(
+          "Cost of naming a date",
+          edited,
+          0.5,
+          "How much dearer it is to ask about a named date than a whole " +
+            "period. Above one, broad questions come first.",
+        )(_.discretion)((objective, value) =>
+          objective.copy(discretion = value),
+        ),
+        tuning(
+          "Chance any date suits",
+          edited,
+          0.05,
+          "What to assume before anyone answers. Lower it when attending is a " +
+            "real imposition, as for long-haul travel.",
+        )(_.prior)((objective, value) => objective.copy(prior = value)),
+        tuning(
+          "Penalty per guest over capacity",
+          edited,
+          0.5,
+          "Should exceed one: turning away a guest who has accepted costs " +
+            "more than never inviting them.",
+        )(_.overflowWeight)((objective, value) =>
+          objective.copy(overflowWeight = value),
+        ),
+        tuning(
+          "Guests worth one unit of cost",
+          edited,
+          0.001,
+          "Leave at zero to ignore cost and choose purely on attendance.",
+        )(_.costWeight)((objective, value) =>
+          objective.copy(costWeight = value),
+        ),
+      ),
+      div(
+        cls("row"),
+        marginTop("18px"),
+        button(
+          "Apply",
+          // Applied together, as one objective. Sending each field as it was
+          // changed meant sending four whole objectives, each built from
+          // whatever had last come back: change two in quick succession and the
+          // second, having started from a copy taken before the first landed,
+          // quietly undid it.
+          disabled <-- edited.signal.map(_ == report.poll.objective),
+          onClick.flatMap(_ =>
+            Api
+              .retarget(poll, edited.now())
+              .recover:
+                case reason: Failed =>
+                  failed.set(Some(reason))
+                  None,
+          ) --> (_ => reload()),
+        ),
+        child.maybe <--
+          edited
+            .signal
+            .map(objective =>
+              Option.when(objective != report.poll.objective)(span(
+                cls("small"),
+                cls("faint"),
+                "Not yet applied.",
+              )),
+            ),
+      ),
+    )
 
   /** A whole-number setting held on the client alone. */
   private def counter
@@ -495,13 +571,12 @@ object OrganiserView extends View:
       stepAttr("1"),
       minAttr(least.toString),
       maxAttr(most.toString),
-      controlled(
-        value <-- held.signal.map(_.toString),
-        onInput.mapToValue.map(_.toIntOption) -->
-          (entered =>
-            entered.map(math.max(least, _).min(most)).foreach(held.set)
-          ),
-      ),
+      // Committed on leaving the field, not on every keystroke. Each change
+      // costs a full solve on the server, so typing "120" would have asked for
+      // three of them, at one, twelve and a hundred and twenty.
+      value <-- held.signal.map(_.toString),
+      onChange.mapToValue.map(_.toIntOption) -->
+        (entered => entered.map(math.max(least, _).min(most)).foreach(held.set)),
     ),
   )
 
@@ -512,11 +587,12 @@ object OrganiserView extends View:
   private def tuning
     (
       name: String,
-      held: Double,
+      held: Var[Objective],
       step: Double,
       hint: String,
     )
-    (revise: Double => Objective)
+    (read: Objective => Double)
+    (revise: (Objective, Double) => Objective)
     : HtmlElement = label(
     cls("field"),
     name,
@@ -524,13 +600,12 @@ object OrganiserView extends View:
       typ("number"),
       stepAttr(step.toString),
       minAttr("0"),
-      value(held.toString),
+      value(read(held.now()).toString),
       onChange
         .mapToValue
         .map(_.toDoubleOption)
-        .collect { case Some(entered) => entered }
-        .flatMap(entered => Api.retarget(poll, revise(entered))) -->
-        (report => current.set(Some(report))),
+        .collect { case Some(entered) => entered } -->
+        (entered => held.update(revise(_, entered))),
     ),
     span(cls("tiny"), cls("faint"), hint),
   )

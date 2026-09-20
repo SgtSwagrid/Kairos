@@ -234,12 +234,13 @@ final class PollService(polls: Polls) extends Service("polls"):
     * @return
     *   A report on the new poll.
     */
-  private def started(draft: Draft): IO[Either[StatusCode, Report]] = for
-    id         <- Tokens.next[Poll]
-    identities <- Tokens.several[Participant](draft.participants.size)
-    poll       <- polls.put(draft.toPoll(id, identities))
-    reported   <- report(poll, None, None)
-  yield Right(reported)
+  private def started(draft: Draft): IO[Either[StatusCode, Report]] =
+    for
+      id         <- Tokens.next[Poll]
+      identities <- Tokens.several[Participant](draft.participants.size)
+      poll       <- polls.put(draft.toPoll(id, identities))
+      reported   <- report(poll, None, None)
+    yield Right(reported)
 
   /** A poll together with the solver's advice on it. */
   private def report

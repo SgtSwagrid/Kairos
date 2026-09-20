@@ -5,7 +5,6 @@ import cats.effect.IO
 import com.alecdorrington.server.api.CoreApi
 import com.alecdorrington.server.config.Env
 import com.alecdorrington.server.html.Template
-import io.github.sgtswagrid.assetloader.tapir.AssetService
 import sttp.tapir.*
 
 /**
@@ -16,17 +15,11 @@ object CoreService extends Service("core"):
 
   import Service.Endpoint
 
-  private val assetService = new AssetService(
-    "assets",
-    Env.ASSETS_DIR,
-    if Env.DEV_MODE then 0 else 3600,
-  )
-
   /**
     * An endpoint that serves static files from the client's "resources"
     * directory. Returns `304 Not Modified` if the client's cached ETag matches.
     */
-  lazy val assets: Endpoint = assetService.serverEndpoint[IO]
+  lazy val assets: Endpoint = CoreApi.assetService.serverEndpoint[IO]
 
   /**
     * An endpoint that establishes a websocket connection so that the client is
@@ -54,10 +47,7 @@ object CoreService extends Service("core"):
   lazy val index: Endpoint = CoreApi
     .index
     .serverLogicSuccessPure: _ =>
-      Template(
-        viewName = "IndexView",
-        pageTitle = "Kairos",
-      )
+      Template("IndexView")
 
   /**
     * Serves the organiser's page for one poll. The poll's identifier is read
@@ -66,19 +56,13 @@ object CoreService extends Service("core"):
   lazy val organiser: Endpoint = CoreApi
     .organiser
     .serverLogicSuccessPure: _ =>
-      Template(
-        viewName = "OrganiserView",
-        pageTitle = "Kairos",
-      )
+      Template("OrganiserView")
 
   /** Serves the page on which one participant answers their questions. */
   lazy val respond: Endpoint = CoreApi
     .respond
     .serverLogicSuccessPure: _ =>
-      Template(
-        viewName = "RespondView",
-        pageTitle = "Kairos",
-      )
+      Template("RespondView")
 
   override lazy val api: List[Endpoint] =
     List(assets, health, index, organiser, respond) ++

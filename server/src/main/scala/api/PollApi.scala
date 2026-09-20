@@ -11,6 +11,19 @@ import sttp.tapir.json.circe.*
 /** The endpoints by which polls are created, read, and answered. */
 object PollApi:
 
+  /**
+    * An endpoint of this API: it takes an input, and either fails with a status
+    * or returns an output. Named so that the endpoints below can carry their
+    * types, which the spelt-out form is too unwieldy to allow.
+    *
+    * @tparam In
+    *   What the request carries.
+    *
+    * @tparam Out
+    *   What the response carries.
+    */
+  type Route[In, Out] = PublicEndpoint[In, StatusCode, Out, Any]
+
   /** The identifier of the poll being acted upon. */
   private val poll = path[String]("poll").description("The poll's identifier.")
 
@@ -26,14 +39,14 @@ object PollApi:
     .tag("polls")
 
   /** Creates a poll from the organiser's description of it. */
-  val create = polls
+  val create: Route[Draft, Report] = polls
     .post
     .in(jsonBody[Draft])
     .out(jsonBody[Report])
     .summary("Create a poll.")
 
   /** Creates a worked example, so the tool can be tried without setting one up. */
-  val example = polls
+  val example: Route[Unit, Report] = polls
     .post
     .in("example")
     .out(jsonBody[Report])
@@ -45,7 +58,11 @@ object PollApi:
     * organiser can weigh a larger round against a smaller one before sending
     * either.
     */
-  val read = polls
+  val read
+    : Route[
+      (String, Option[Int], Option[Int]),
+      Report,
+    ] = polls
     .get
     .in(poll)
     .in(query[Option[Int]]("budget").description("Questions per round."))
@@ -54,7 +71,11 @@ object PollApi:
     .summary("Read a poll and the advice on it.")
 
   /** Adds participants to an existing poll. */
-  val invite = polls
+  val invite
+    : Route[
+      (String, List[ParticipantDraft]),
+      Report,
+    ] = polls
     .post
     .in(poll)
     .in("participants")
@@ -63,7 +84,7 @@ object PollApi:
     .summary("Add participants to a poll.")
 
   /** Revises what the organiser is trying to maximise. */
-  val retarget = polls
+  val retarget: Route[(String, Objective), Report] = polls
     .put
     .in(poll)
     .in("objective")
@@ -72,13 +93,21 @@ object PollApi:
     .summary("Revise a poll's objective.")
 
   /** Deletes a poll and everything said in it. */
-  val discard = polls.delete.in(poll).out(emptyOutput).summary("Delete a poll.")
+  val discard: Route[String, Unit] = polls
+    .delete
+    .in(poll)
+    .out(emptyOutput)
+    .summary("Delete a poll.")
 
   /**
     * Sends out the next round of questions, recording them against the poll so
     * that each participant is asked what was actually sent to them.
     */
-  val send = polls
+  val send
+    : Route[
+      (String, Option[Int], Option[Int]),
+      Report,
+    ] = polls
     .post
     .in(poll)
     .in("round")
@@ -88,7 +117,7 @@ object PollApi:
     .summary("Send out the next round of questions.")
 
   /** Fetches the questions awaiting one participant. */
-  val ask = polls
+  val ask: Route[(String, String), Questionnaire] = polls
     .get
     .in(poll)
     .in("ask" / participant)
@@ -96,7 +125,11 @@ object PollApi:
     .summary("Fetch a participant's questions.")
 
   /** Records one participant's answers, and returns whatever is left to ask. */
-  val answer = polls
+  val answer
+    : Route[
+      (String, String, List[Answer]),
+      Questionnaire,
+    ] = polls
     .post
     .in(poll)
     .in("ask" / participant)

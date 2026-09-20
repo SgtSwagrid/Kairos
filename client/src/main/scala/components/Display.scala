@@ -82,6 +82,46 @@ object Display:
     contents,
   )
 
+  /**
+    * The heading of a page: a title, a sentence beneath it, and whatever
+    * belongs opposite.
+    *
+    * @param heading
+    *   The page's title.
+    *
+    * @param lede
+    *   A sentence describing it.
+    *
+    * @param aside
+    *   What to show opposite the title, such as a badge or a link.
+    *
+    * @return
+    *   An element displaying the heading.
+    */
+  def masthead
+    (heading: String, lede: String)
+    (aside: Modifier[HtmlElement]*)
+    : HtmlElement = div(
+    cls("masthead"),
+    div(
+      h1(heading),
+      p(cls("lede"), cls("small"), lede),
+    ),
+    Option.when(aside.nonEmpty)(div(cls("row"), aside)),
+  )
+
+  /** A table cell holding a figure, right-aligned with tabular numerals. */
+  def figures
+    (
+      text: String,
+      extra: Modifier[HtmlElement]*,
+    )
+    : HtmlElement = td(cls("figure-column"), text, extra)
+
+  /** A table heading for a column of figures. */
+  def figureHeading(label: String): HtmlElement =
+    th(cls("figure-column"), label)
+
   /** A small pill of text, optionally toned. */
   def badge(text: String, tone: String = ""): HtmlElement =
     span(cls("badge"), cls(tone), text)

@@ -47,16 +47,16 @@ abstract class View:
   protected def content: ReactiveElement.Base
 
   /**
-    * An instruction to render this view inside the root [[div]] of the given
-    * [[name]]. This method is side-effecting, and should only be called once
-    * per page during initialisation.
+    * Renders this view inside the element of the given identifier. This method
+    * is side-effecting, and should be called once per page during
+    * initialisation.
     *
     * @param rootName
-    *   The name of the root element (default = `"root"`). The contents of this
-    *   view will be inserted here.
+    *   The identifier of the element to render into. The contents of this view
+    *   are inserted there.
     */
   @JSExport("show")
-  final def show(rootName: String = "root"): Unit =
-
-    val root = document.getElementById("root")
-    render(root, content)
+  final def show(rootName: String = "root"): Unit = render(
+    document.getElementById(rootName),
+    content,
+  )

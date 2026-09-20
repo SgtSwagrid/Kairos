@@ -41,11 +41,6 @@ enum Question derives Codec.AsObject:
     case AboutSlot(id)       => id == slot.id
     case AboutWindow(window) => window.encloses(slot.window)
 
-  /** The window of days this question concerns. */
-  def window(slots: Map[Id[Slot], Slot]): Option[Window] = this match
-    case AboutSlot(id)       => slots.get(id).map(_.window)
-    case AboutWindow(window) => Some(window)
-
   /**
     * The question as it should be put to a participant. Window questions are
     * phrased as being about an event of the given length falling somewhere in

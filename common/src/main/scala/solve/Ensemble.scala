@@ -46,34 +46,6 @@ final class Ensemble private (
   def score(world: Int, slot: Int): Double = scores(world * width + slot)
 
   /**
-    * The answer the given participant would give to the given question in the
-    * given world, as a truth rather than a grade.
-    *
-    * A pooled question is answered by whether any enclosed slot would work,
-    * which is precisely the pooled measurement of group testing: one answer
-    * summarises many slots, and a negative answer rules out all of them.
-    *
-    * @param world
-    *   The world in which to answer.
-    *
-    * @param participant
-    *   The index of the participant answering.
-    *
-    * @param question
-    *   The question being asked.
-    *
-    * @return
-    *   `true` if the participant could attend what was asked about.
-    */
-  def answer
-    (
-      world: Int,
-      participant: Int,
-      question: Question,
-    )
-    : Boolean = any(world, participant, bearing(question))
-
-  /**
     * Whether the given participant attends any of the given slots in the given
     * world. Callers in a loop should resolve [[bearing]] once and pass the
     * result here, rather than repeatedly re-deriving which slots a question
@@ -104,10 +76,6 @@ final class Ensemble private (
     .slots
     .indices
     .filter(slot => question.bearsOn(belief.slots(slot)))
-
-  /** The mean score of the given slot across every world. */
-  def meanScore(slot: Int): Double = (0 until size).map(score(_, slot)).sum /
-    size
 
   /** Every world index, for folding over the ensemble. */
   def worlds: Range = 0 until size

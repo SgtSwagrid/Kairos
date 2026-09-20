@@ -29,6 +29,12 @@ formal background.
 
 ### Things that will bite you
 
+- The style guide says `@return` takes an indefinite article. That holds for
+  descriptions of something newly produced ("A forecast for that slot") but not
+  for ones naming a specific thing, a plural or a possessive ("The chosen slot's
+  share", "The indices of the worlds to use"). Both forms are in use on purpose;
+  do not rewrite one into the other wholesale, which produces "A polls it held".
+
 - **Do not score questions by expected improvement in the choice.** It is exactly zero
   whenever a single answer would not flip which option leads, which is most of the
   time, so rounds stall after a few questions. `Elicitation` uses mutual information
@@ -37,6 +43,18 @@ formal background.
 - **Question worth is in bits and is not monotonically decreasing** along a round,
   because mutual information is not submodular within a participant. Do not "fix" this.
 - **The value of information can rise between rounds.** Also not a bug.
+- **`Verdict` splits tied worlds between the slots that tied; `Elicitation.victors`
+  must not.** The first reports a probability, where splitting is correct. The
+  second defines the target that questions are scored against predicting, so it
+  has to be a function of the world alone — sharing ties out makes part of the
+  target unpredictable in principle and sets the search chasing noise. Doing it
+  there took the worked example from 93% of the best available value to 39%, and
+  passed every test but the wide-field one in `SimulationSuite`.
+- **Test solver changes on a wide field.** With around ten slots a solver choosing
+  nearly at random still lands near the best by luck. The regression above slipped
+  past seventy tests because every fixture was too small.
+- **`Poll.bounds`, not `Poll.objective`.** The solver reads the bounded objective,
+  so a hand-edited file cannot carry a setting that breaks it.
 - `Service` deliberately provides only `api`. Documentation and metrics are assembled
   once across all services in `Assembly`; a service that provided its own would
   collide with the next one (Prometheus refuses duplicate metric registration, and

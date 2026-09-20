@@ -43,10 +43,11 @@ final case class Failed
 object Api:
 
   /** Creates a worked example poll. */
-  def example: EventStream[Report] = send[Report]("POST", "/api/polls/example")
+  def example: EventStream[Report] =
+    request[Report]("POST", "/api/polls/example")
 
   /** Creates a poll from the organiser's description of it. */
-  def create(draft: Draft): EventStream[Report] = send[Report](
+  def create(draft: Draft): EventStream[Report] = request[Report](
     "POST",
     "/api/polls",
     Some(draft.asJson),
@@ -68,14 +69,14 @@ object Api:
     *   A report on the poll.
     */
   def read(poll: String, budget: Int, each: Int): EventStream[Report] =
-    send[Report](
+    request[Report](
       "GET",
       s"/api/polls/$poll?budget=$budget&each=$each",
     )
 
   /** Sends out the next round of questions. */
   def sendRound(poll: String, budget: Int, each: Int): EventStream[Report] =
-    send[Report](
+    request[Report](
       "POST",
       s"/api/polls/$poll/round?budget=$budget&each=$each",
     )
@@ -86,7 +87,7 @@ object Api:
       poll: String,
       added: List[ParticipantDraft],
     )
-    : EventStream[Report] = send[Report](
+    : EventStream[Report] = request[Report](
     "POST",
     s"/api/polls/$poll/participants",
     Some(added.asJson),
@@ -94,7 +95,7 @@ object Api:
 
   /** Revises what the organiser is trying to maximise. */
   def retarget(poll: String, objective: Objective): EventStream[Report] =
-    send[Report](
+    request[Report](
       "PUT",
       s"/api/polls/$poll/objective",
       Some(objective.asJson),
@@ -102,7 +103,7 @@ object Api:
 
   /** Fetches the questions awaiting one participant. */
   def ask(poll: String, participant: String): EventStream[Questionnaire] =
-    send[Questionnaire](
+    request[Questionnaire](
       "GET",
       s"/api/polls/$poll/ask/$participant",
     )
@@ -114,7 +115,7 @@ object Api:
       participant: String,
       answers: List[Answer],
     )
-    : EventStream[Questionnaire] = send[Questionnaire](
+    : EventStream[Questionnaire] = request[Questionnaire](
     "POST",
     s"/api/polls/$poll/ask/$participant",
     Some(answers.asJson),
@@ -136,7 +137,7 @@ object Api:
     *   A stream emitting the decoded response, or failing with the reason it
     *   could not be obtained.
     */
-  private def send[A : Decoder]
+  private def request[A : Decoder]
     (
       method: String,
       url: String,

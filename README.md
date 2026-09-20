@@ -35,34 +35,41 @@ Kairos answers that, one round at a time, and tells you when to stop asking and 
 3. **Model the rest.** Answers become a probability that each person attends each
    option. Thousands of simulated turnouts give the chance that each option is in fact
    the best one, and the risk of overrunning a venue.
-4. **Stop when asking stops paying.** Kairos reports what perfect knowledge of
-   everybody's diary would be worth, in guests. Once that falls below the cost of
-   another round, book.
+4. **Stop when asking stops paying.** Kairos reports what having everybody's
+   answers would be worth, in guests. Once that falls below the cost of another
+   round, book. Note the wording: the part of the uncertainty that comes from
+   somebody who *can* attend not turning up is measured separately and excluded,
+   because no question resolves it.
 
 ### What it does in practice
 
-Against a simulated guest list whose availability is hidden from it — 29 candidate
-options across 3 venues, 32 guests, each favouring one month of the summer:
+Measured, not asserted. `SimulationSuite` hides a guest list from the solver, runs
+the rounds, and checks the choice against the truth — across five different hidden
+guest lists, because a single one flatters or damns it by luck.
 
-| Round | Questions | Broad | Named dates | Leading option | Confidence | Value of information | True rank |
-|------:|----------:|------:|------------:|----------------|-----------:|---------------------:|----------:|
-| 1 | 40 | 39 | 1 | Lauterbrunnen, 28 May | 11% | 10.22 | #29 of 29 |
-| 2 | 40 | 36 | 4 | Lauterbrunnen, 21 May | 9% | 11.34 | #13 |
-| 3 | 40 | 20 | 20 | Scheidegg Hut, 2 Jul | 22% | 7.39 | #7 |
-| 4 | 40 | 11 | 29 | **Scheidegg Hut, 9 Jul** | 28% | 6.04 | **#1** |
-| 5 | 40 | 1 | 39 | Scheidegg Hut, 9 Jul | 51% | 3.18 | #1 |
+On two venues over a summer, 11 options and 40 guests, five rounds of 30 questions
+(about 1.5 questions per guest per round):
 
-Four rounds of about one and a quarter questions per guest find the best of 29
-options. Note the shape of it: the early rounds buy broad questions and settle the
-month, and only then does it start naming dates.
+| Guest list | Share of the best available | True rank |
+|---|---:|---:|
+| 1 | 100% | #1 |
+| 2 | 92% | #2 |
+| 3 | 100% | #1 |
+| 4 | 100% | #1 |
+| 5 | 82% | #4 |
+| **mean** | **95%** | |
 
-Setting the cost of naming a date to zero makes it *worse*, not better — it wanders
-between months for six rounds and ends at rank #3. Screening first is not merely
-polite; it is the more efficient use of a round.
+Four rounds average 85%. On a wider field — 18 options, 32 guests — four rounds
+find the best option outright.
 
-Note also that the value of information rises between rounds 1 and 2. This is not a
-defect. Learning that many guests are free in July widens the gap between the options,
-so what it would cost to choose wrongly can grow before it shrinks.
+Note the shape of it: the early rounds buy broad questions and settle the month,
+and only then does it start naming dates. Setting the cost of naming a date to zero
+makes it *worse*, not better: it wanders between months and ends several places
+down. Screening first is not merely polite; it is the more efficient use of a round.
+
+The value of information is also not monotone — learning that many guests are free
+in July widens the gap between the options, so what it would cost to choose wrongly
+can grow for a round before it shrinks.
 
 ## 🔬 What this is, formally
 
@@ -140,9 +147,12 @@ sbt build
 ### Run the tests
 ```bash
 sbt "common/testOnly -- *"
+sbt "server/testOnly -- *"
 ```
-- Includes an end-to-end simulation that hides a guest list's availability from the
-  solver and checks that a few short rounds find a near-best option.
+- The first includes the end-to-end simulation described above.
+- The second covers the store, including that concurrent answers neither go
+  missing nor corrupt the file.
+- Plain `sbt test` only reruns suites that have changed.
 
 ### Format all code according to style rules
 ```bash
@@ -204,10 +214,17 @@ dates are winning.
   participant's own answers *are* correlated across options.
 - **Answers are assumed honest and stable.** There is no model of people who say yes
   to everything, nor of availability changing as the date approaches.
-- **No authentication.** Anyone with a participant's link can answer as them, and
-  anyone with a poll's link can see the dashboard. Fine among friends; not fine
-  otherwise.
-- **Polls are mirrored to a file, not a database.** Adequate for a handful of polls
+- **A link is the access control.** Identifiers are 16 random bytes, so they are
+  not guessable, but anyone holding a poll's link can see its dashboard and delete
+  it, and anyone holding a participant's link can answer as them. There are no
+  accounts. `/metrics` is also served unauthenticated. Fine among friends; not
+  fine otherwise.
+- **The server does not list polls.** It cannot, without handing every visitor
+  every guest list. The landing page remembers only what this browser has opened,
+  in local storage, so a lost link is lost.
+- **Polls are mirrored to a file, not a database.** Saves are serialised and each
+  writes through a scratch file of its own, so concurrent answers are safe, but
+  every save rewrites the whole collection. Adequate for a handful of polls
   amended a few dozen times; not for concurrent use at scale.
 
 ## 👁️ See also

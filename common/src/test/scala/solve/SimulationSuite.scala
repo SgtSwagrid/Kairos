@@ -268,3 +268,78 @@ class SimulationSuite extends FunSuite:
       finished.responses.sizeIs <= rounds * budget,
       s"${ finished.responses.size } questions in all",
     )
+
+  test("a wide field of slots is narrowed to a near-best one"):
+    // A separate fixture because the one above is too forgiving to catch a real
+    // regression. With eleven slots, a solver choosing almost at random still
+    // lands near the best by luck; with thirty it does not. Sharing tied worlds
+    // out among the options that tied for them passed every other test here and
+    // took this one from third place of thirty to nineteenth.
+    val many = Slot.enumerate(
+      venue = "Ridge",
+      openings = List(window("2027-05-14", "2027-09-12")),
+      capacity = 64,
+      cost = 0,
+      length = 3,
+      stride = 7,
+    )
+    val crowd = (1 to 28).map(index => participant(s"guest$index")).toList ++
+      (1 to 4).map(index => participant(s"family$index", weight = 10.0)).toList
+    val subject = poll(
+      many,
+      crowd,
+      Objective(prior = 0.25, discretion = 3.0),
+    )
+
+    val random = Random(31L)
+    val hidden = crowd
+      .toVector
+      .map: _ =>
+        val favoured = random.shuffle(List(5, 6, 7, 7, 8, 8)).head
+        val willing  = random.nextDouble() > 0.1
+        many
+          .toVector
+          .map: candidate =>
+            willing &&
+            random.nextDouble() <
+              (if candidate.window.start.month == favoured then 0.85 else 0.2)
+
+    def worth(slot: Int): Double = crowd
+      .indices
+      .filter(hidden(_)(slot))
+      .map(crowd(_).weight)
+      .sum
+
+    val finished = (1 to 4).foldLeft(subject): (current, _) =>
+      val advice = Analysis.of(current, 40, perParticipant = 2)
+      current.record(
+        advice
+          .round
+          .enquiries
+          .map: enquiry =>
+            val guest   = crowd.indexWhere(_.id == enquiry.participant)
+            val bearing =
+              many.indices.filter(slot => enquiry.question.bearsOn(many(slot)))
+            Response(
+              enquiry.participant,
+              enquiry.question,
+              if bearing.exists(hidden(guest)) then Availability.Yes
+              else Availability.No,
+            ),
+      )
+
+    val outcome = Analysis.of(finished, 40, perParticipant = 2)
+    val chosen  = many.indexWhere(_.id == outcome.verdict.recommended.get.id)
+    val values  = many.indices.map(worth)
+    val rank    = values.sorted.reverse.indexOf(values(chosen)) + 1
+
+    println(f"\n  ${ many.size } slots: chose #$rank at " + f"${ 100 *
+          values(chosen) / values.max }%.0f%% of the best\n")
+    assert(
+      rank <= 5,
+      s"chose the slot ranked #$rank of ${ many.size }",
+    )
+    assert(
+      values(chosen) > 0.85 * values.max,
+      f"chose a slot worth ${ values(chosen) }%.1f against ${ values.max }%.1f",
+    )

@@ -81,27 +81,3 @@ final case class Answer
     availability: Availability,
   )
   derives Codec.AsObject
-
-/**
-  * A summary of one participant, for the organiser's overview.
-  *
-  * @param participant
-  *   The participant summarised.
-  *
-  * @param answered
-  *   How many questions they have answered.
-  *
-  * @param pending
-  *   How many questions the next round would put to them.
-  *
-  * @param best
-  *   Their probability of attending the recommended slot.
-  */
-final case class Standing
-  (
-    participant: Participant,
-    answered: Int,
-    pending: Int,
-    best: Double,
-  )
-  derives Codec.AsObject

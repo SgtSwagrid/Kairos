@@ -66,6 +66,30 @@ object Fixture:
   def window(from: String, to: String): Window =
     Window(Day.parse(from).get, Day.parse(to).get)
 
+  /** A number of ordinary participants, named in sequence. */
+  def guests(count: Int, weight: Double = 1.0): List[Participant] = (1 to count)
+    .map(index => participant(s"guest$index", weight))
+    .toList
+
+  /** The advice on a poll, with the irreducible floor measured and removed. */
+  def advise(subject: Poll): Verdict =
+    val belief = Belief.from(subject)
+    Verdict.of(
+      Ensemble.draw(belief, subject.bounds),
+      Ensemble.draw(belief.saturated, subject.bounds),
+    )
+
+  /** The same answer from every participant about one slot. */
+  def unanimous
+    (
+      people: Seq[Participant],
+      slot: Slot,
+      availability: Availability,
+    )
+    : List[Response] = people
+    .map(person => says(person.name, slot, availability))
+    .toList
+
   /** An answer from the named participant to a question about one slot. */
   def says
     (

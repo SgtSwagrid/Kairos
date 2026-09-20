@@ -13,7 +13,7 @@ import io.circe.Codec
   * @param question
   *   The question to put to them.
   *
-  * @param value
+  * @param worth
   *   How much this answer is expected to tell us about which option is best, in
   *   bits, given everything else being asked of the same participant in this
   *   round. One bit is the information in a perfectly balanced yes-or-no.
@@ -22,7 +22,7 @@ final case class Enquiry
   (
     participant: Id[Participant],
     question: Question,
-    value: Double,
+    worth: Double,
   )
   derives Codec.AsObject
 
@@ -34,7 +34,7 @@ final case class Enquiry
   *   descending order of worth: see [[Elicitation.next]] on complementary
   *   questions.
   *
-  * @param value
+  * @param worth
   *   How much this round is expected to tell us about which option is best, in
   *   bits. This is the sum of what the individual answers are worth, capped at
   *   [[available]]. Summing is optimistic, because two participants' answers
@@ -52,7 +52,7 @@ final case class Enquiry
 final case class Round
   (
     enquiries: List[Enquiry],
-    value: Double,
+    worth: Double,
     available: Double,
   )
   derives Codec.AsObject:
@@ -69,7 +69,7 @@ final case class Round
     * would resolve. A round approaching `1` leaves little reason for another.
     */
   def coverage: Double =
-    if available <= 0 then 1.0 else math.min(1.0, value / available)
+    if available <= 0 then 1.0 else math.min(1.0, worth / available)
 
 object Elicitation:
 
@@ -171,7 +171,7 @@ object Elicitation:
     *   The greatest number of questions to put to any one participant.
     *
     * @return
-    *   The round of questions to send out.
+    *   A round of questions to send out.
     */
   def next
     (
@@ -235,7 +235,7 @@ object Elicitation:
     val enquiries = chosen.reverse
     Round(
       enquiries = enquiries,
-      value = math.min(enquiries.map(_.value).sum, plain),
+      worth = math.min(enquiries.map(_.worth).sum, plain),
       available = plain,
     )
 
@@ -463,6 +463,16 @@ object Elicitation:
     * @param contending
     *   The indices of the options that may be chosen.
     *
+    * Ties fall to the lowest-numbered option, deliberately and despite
+    * [[Verdict]] sharing them out. The two want different things. Verdict is
+    * reporting a probability, where splitting a tie is simply correct; here the
+    * winner is the thing questions are scored against predicting, so it has to
+    * be a function of the world and nothing else. Sharing ties out by some
+    * arbitrary rule makes part of the target unpredictable in principle, which
+    * dilutes every question's apparent worth and sets the search chasing noise.
+    * It was tried: on the worked example it took the choice from 93% of the
+    * best available value down to 39%, and from third place to nineteenth.
+    *
     * @return
     *   For each world, the position within `contending` of its winning option.
     */
@@ -472,17 +482,8 @@ object Elicitation:
       sampled: Array[Int],
       contending: Vector[Int],
     )
-    : Array[Int] = sampled
-    .zipWithIndex
-    .map: (world, index) =>
-      val scores  = contending.map(ensemble.score(world, _))
-      val highest = scores.max
-      val level   = scores.indices.filter(slot => scores(slot) == highest)
-      // Ties are shared out across the worlds that hold them rather than always
-      // going to the first slot. Awarding them all to one makes a field of
-      // evenly matched slots look decided, leaving no uncertainty for a question
-      // to resolve and so no question worth asking.
-      level(index % level.size)
+    : Array[Int] = sampled.map: world =>
+    contending.indices.maxBy(slot => ensemble.score(world, contending(slot)))
 
   /**
     * How uncertain it is which option wins, in bits, averaged over the groups

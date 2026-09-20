@@ -5,7 +5,7 @@ import com.alecdorrington.client.components.Display.*
 import com.alecdorrington.client.net.{Api, Failed}
 import com.alecdorrington.common.api.Report
 import com.alecdorrington.common.model.*
-import com.alecdorrington.common.solve.{Forecast, Verdict}
+import com.alecdorrington.common.solve.{Forecast, Round, Verdict}
 import com.raquo.laminar.api.L.{*, given}
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSExportTopLevel
@@ -71,6 +71,9 @@ object OrganiserView extends View:
             case (Some(report), _) => dashboard(report),
   )
 
+  /** Where every fresh report goes. */
+  private val received: Observer[Report] = current.writer.contramap(Some(_))
+
   /** Asks for a fresh report at the size currently chosen. */
   private def reload(): Unit = requests.emit((budget.now(), each.now()))
 
@@ -125,32 +128,23 @@ object OrganiserView extends View:
 
   /** The whole dashboard for a loaded report. */
   private def dashboard(report: Report): HtmlElement = div(
-    div(
-      cls("masthead"),
-      div(
-        h1(report.poll.title),
-        p(
-          cls("lede"),
-          cls("small"),
-          s"${ report.poll.slots.size } candidate options across " +
-            s"${ report.poll.slots.map(_.venue).distinct.size } venues, " +
-            s"${ report.poll.participants.size } guests.",
-        ),
+    masthead(
+      report.poll.title,
+      s"${ report.poll.slots.size } candidate options across " +
+        s"${ report.poll.slots.map(_.venue).distinct.size } venues, " +
+        s"${ report.poll.participants.size } guests.",
+    )(
+      badge(
+        if report.poll.roundsSent == 0 then "Nothing asked yet"
+        else s"Round ${ report.poll.roundsSent } sent",
       ),
-      div(
-        cls("row"),
-        badge(
-          if report.poll.round == 0 then "Nothing asked yet"
-          else s"Round ${ report.poll.round } sent",
-        ),
-        a(href("/"), cls("small"), "All polls"),
-      ),
+      a(href("/"), cls("small"), "All polls"),
     ),
     div(
       cls("stack"),
       advice(report),
       ranking(report),
-      round(report),
+      asking(report),
       guests(report),
       settings(report),
     ),
@@ -320,7 +314,7 @@ object OrganiserView extends View:
     ))
 
   /** The next round of questions, and the means of sending it. */
-  private def round(report: Report): HtmlElement =
+  private def asking(report: Report): HtmlElement =
     val next = report.analysis.round
     panel(
       "What to ask next",
@@ -336,93 +330,97 @@ object OrganiserView extends View:
         )
       else
         div(
-          div(
-            cls("figures"),
-            statistic(
-              next.enquiries.size.toString,
-              "questions",
-            ),
-            statistic(
-              next.recipients.toString,
-              "guests to contact",
-            ),
-            statistic(
-              decimal(
-                next.enquiries.size.toDouble / math.max(1, next.recipients),
-              ),
-              "questions each",
-            ),
-            statistic(
-              percent(next.coverage),
-              "of what's left to learn",
-            ),
-          ),
-          div(
-            cls("row"),
-            marginTop("18px"),
-            button(
-              s"Send these ${ next.enquiries.size } questions",
-              onClick.flatMapTo(
-                Api.sendRound(poll, budget.now(), each.now()),
-              ) --> (report => current.set(Some(report))),
-            ),
-            span(
-              cls("small"),
-              cls("faint"),
-              "Records the questions against each guest, so their link shows " +
-                "exactly what was sent.",
-            ),
-          ),
+          scale(next),
+          despatch(next),
           h3(
             "The questions",
             marginTop("22px"),
             marginBottom("8px"),
           ),
-          div(
-            cls("scroll"),
-            table(
-              thead(tr(
-                th("Guest"),
-                th("Question"),
-                th(cls("figure-column"), "Bits"),
-                th(width("90px"), "Worth"),
-              )),
-              tbody(
-                next
-                  .enquiries
-                  .map: enquiry =>
-                    tr(
-                      td(
-                        report
-                          .poll
-                          .participantsById
-                          .get(enquiry.participant)
-                          .map(_.name)
-                          .getOrElse("Unknown"),
-                      ),
-                      td(
-                        cls("small"),
-                        enquiry
-                          .question
-                          .prompt(
-                            report.poll.slotsById,
-                            report.poll.length,
-                          ),
-                      ),
-                      td(
-                        cls("figure-column"),
-                        cls("tiny"),
-                        precise(enquiry.value),
-                      ),
-                      td(bar(
-                        enquiry.value /
-                          next.enquiries.map(_.value).maxOption.getOrElse(1.0),
-                      )),
-                    ),
-              ),
-            ),
-          ),
+          div(cls("scroll"), questions(report, next)),
         ),
+    )
+
+  /** How large the next round is, and how much of the doubt it would settle. */
+  private def scale(next: Round): HtmlElement = div(
+    cls("figures"),
+    statistic(
+      next.enquiries.size.toString,
+      "questions",
+    ),
+    statistic(
+      next.recipients.toString,
+      "guests to contact",
+    ),
+    statistic(
+      decimal(next.enquiries.size.toDouble / math.max(1, next.recipients)),
+      "questions each",
+    ),
+    statistic(
+      percent(next.coverage),
+      "of what's left to learn",
+    ),
+  )
+
+  /** The means of sending the round out. */
+  private def despatch(next: Round): HtmlElement = div(
+    cls("row"),
+    marginTop("18px"),
+    button(
+      s"Send these ${ next.enquiries.size } questions",
+      onClick.flatMapTo(
+        Api
+          .sendRound(poll, budget.now(), each.now())
+          .recover:
+            case reason: Failed =>
+              failed.set(Some(reason))
+              None,
+      ) --> received,
+    ),
+    span(
+      cls("small"),
+      cls("faint"),
+      "Records the questions against each guest, so their link shows exactly " +
+        "what was sent.",
+    ),
+  )
+
+  /** Each question in the round, with what it is worth. */
+  private def questions(report: Report, next: Round): HtmlElement =
+    val most = next.enquiries.map(_.worth).maxOption.getOrElse(1.0)
+    table(
+      thead(tr(
+        th("Guest"),
+        th("Question"),
+        figureHeading("Bits"),
+        th(width("90px"), "Worth"),
+      )),
+      tbody(
+        next
+          .enquiries
+          .map: enquiry =>
+            tr(
+              td(
+                report
+                  .poll
+                  .participantsById
+                  .get(enquiry.participant)
+                  .map(_.name)
+                  .getOrElse("Unknown"),
+              ),
+              td(
+                cls("small"),
+                enquiry
+                  .question
+                  .prompt(
+                    report.poll.slotsById,
+                    report.poll.length,
+                  ),
+              ),
+              figures(precise(enquiry.worth), cls("tiny")),
+              td(bar(enquiry.worth / most)),
+            ),
+      ),
     )
 
   /** The guest list, with each guest's link and standing. */

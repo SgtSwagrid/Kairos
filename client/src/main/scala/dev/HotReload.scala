@@ -16,12 +16,20 @@ object HotReload:
   @JSExport
   def enable(): Unit =
 
-    val loc      = dom.window.location
-    val protocol = if loc.protocol == "https:" then "wss" else "ws"
-    val url      = s"$protocol://${ loc.host }/hot-reload"
+    val location = dom.window.location
+    val protocol = if location.protocol == "https:" then "wss" else "ws"
+    val url      = s"$protocol://${ location.host }/hot-reload"
 
-    def listen(): Unit = WebSocket(url).onclose = _ =>
-      dom.window.setTimeout(() => listen(), 2000)
-      loc.reload()
+    // Reloading at once would end the page, so the retry that followed it could
+    // never run; if the server were still down the browser simply showed an
+    // error. Waiting first and reloading on the next attempt means the page
+    // sits still until there is something to come back to.
+    def listen(): Unit = WebSocket(url).onclose =
+      _ => dom.window.setTimeout(() => reconnect(), 500)
+
+    def reconnect(): Unit =
+      val socket = WebSocket(url)
+      socket.onopen = _ => location.reload()
+      socket.onclose = _ => dom.window.setTimeout(() => reconnect(), 500)
 
     listen()

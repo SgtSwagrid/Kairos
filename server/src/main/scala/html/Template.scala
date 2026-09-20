@@ -30,7 +30,7 @@ object Template:
   def apply
     (
       viewName: String,
-      pageTitle: String = "",
+      pageTitle: String = "Kairos",
       hotReload: Boolean = Env.DEV_MODE,
     )
     : String = s"""

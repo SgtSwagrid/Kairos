@@ -10,20 +10,10 @@ class VerdictSuite extends FunSuite:
   private val good = slot("Good", "2027-06-11")
   private val bad  = slot("Bad", "2027-06-18")
 
-  private val guests = (1 to 12)
-    .map(index => participant(s"guest$index"))
-    .toList
+  private val folk = guests(12)
 
   private def verdict(responses: List[Response]): Verdict =
-    advise(poll(List(good, bad), guests).copy(responses = responses))
-
-  /** The advice on a poll, with the irreducible floor measured and removed. */
-  private def advise(subject: Poll): Verdict =
-    val belief = Belief.from(subject)
-    Verdict.of(
-      Ensemble.draw(belief, subject.objective),
-      Ensemble.draw(belief.saturated, subject.objective),
-    )
+    advise(poll(List(good, bad), folk).copy(responses = responses))
 
   test("confidence is a distribution over the slots"):
     val advice = verdict(List.empty)
@@ -64,7 +54,7 @@ class VerdictSuite extends FunSuite:
     )
 
   test("a unanimous answer settles the choice"):
-    val answers = guests.flatMap: guest =>
+    val answers = folk.flatMap: guest =>
       List(
         says(guest.name, good, Availability.Yes),
         says(guest.name, bad, Availability.No),
@@ -85,7 +75,7 @@ class VerdictSuite extends FunSuite:
     assert(advice.settled)
 
   test("forecasts are ordered best first and agree with the recommendation"):
-    val answers = guests.map(guest => says(guest.name, good, Availability.Yes))
+    val answers = folk.map(guest => says(guest.name, good, Availability.Yes))
     val advice  = verdict(answers)
     val scores  = advice.forecasts.map(_.score)
     assertEquals(scores, scores.sorted.reverse)
@@ -101,7 +91,7 @@ class VerdictSuite extends FunSuite:
   test("popularity does not redeem a venue that cannot hold everyone"):
     val cramped = slot("Cramped", "2027-06-11", capacity = 3)
     val roomy   = slot("Roomy", "2027-06-18", capacity = 50)
-    val answers = guests.flatMap: guest =>
+    val answers = folk.flatMap: guest =>
       List(
         says(guest.name, cramped, Availability.Yes),
         says(
@@ -111,14 +101,14 @@ class VerdictSuite extends FunSuite:
         ),
       )
     val advice =
-      advise(poll(List(cramped, roomy), guests).copy(responses = answers))
+      advise(poll(List(cramped, roomy), folk).copy(responses = answers))
     assertEquals(
       advice.recommended.map(_.venue),
       Some("Roomy"),
     )
 
   test("contenders exclude slots that have already lost"):
-    val answers = guests.flatMap: guest =>
+    val answers = folk.flatMap: guest =>
       List(
         says(guest.name, good, Availability.Yes),
         says(guest.name, bad, Availability.No),

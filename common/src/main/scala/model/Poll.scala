@@ -33,7 +33,7 @@ import io.circe.Codec
   * @param pending
   *   The questions that have been sent out and are awaiting answers.
   *
-  * @param round
+  * @param roundsSent
   *   How many rounds of questions have been sent out so far.
   */
 final case class Poll
@@ -45,7 +45,7 @@ final case class Poll
     responses: List[Response] = List.empty,
     objective: Objective = Objective.default,
     pending: List[Pending] = List.empty,
-    round: Int = 0,
+    roundsSent: Int = 0,
   )
   derives Codec.AsObject:
 
@@ -72,9 +72,6 @@ final case class Poll
     .groupBy(_.participant)
     .withDefaultValue(List.empty)
 
-  /** The smallest window enclosing every candidate slot. */
-  lazy val span: Option[Window] = Window.enclosing(slots.map(_.window))
-
   /**
     * The typical number of days a slot occupies, used to phrase pooled
     * questions in terms of a commitment of the right size.
@@ -91,10 +88,6 @@ final case class Poll
     .groupBy(_.participant)
     .withDefaultValue(List.empty)
 
-  /** The participants who have been asked something and not yet replied. */
-  lazy val awaited: List[Participant] =
-    participants.filter(participant => pendingBy(participant.id).nonEmpty)
-
   /**
     * Sends out a round of questions, replacing any still outstanding from the
     * round before. A participant who never replied is not owed two rounds of
@@ -108,7 +101,7 @@ final case class Poll
     */
   def send(questions: Seq[Pending]): Poll = copy(
     pending = questions.toList,
-    round = round + 1,
+    roundsSent = roundsSent + 1,
   )
 
   /**

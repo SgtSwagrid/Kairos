@@ -163,11 +163,11 @@ class ElicitationSuite extends FunSuite:
     // solver is at pains to keep apart.
     val analysis = Analysis.of(base, budget = 20, perParticipant = 2)
     assert(
-      analysis.round.value <= analysis.round.available + 1.0e-6,
-      s"${ analysis.round.value } exceeded ${ analysis.round.available }",
+      analysis.round.worth <= analysis.round.available + 1.0e-6,
+      s"${ analysis.round.worth } exceeded ${ analysis.round.available }",
     )
     assert(
-      analysis.round.value > 0.0,
+      analysis.round.worth > 0.0,
       "and it should be worth something",
     )
     assert(analysis.round.coverage <= 1.0 + 1.0e-6)
@@ -175,7 +175,7 @@ class ElicitationSuite extends FunSuite:
   test("every question chosen is worth something"):
     val chosen = round(base, budget = 20).enquiries
     assert(chosen.nonEmpty)
-    assert(chosen.forall(_.value > 0.0))
+    assert(chosen.forall(_.worth > 0.0))
 
   test("a second question to the same guest may be worth more than the first"):
     // Not a defect but a property of the measure. Knowing whether someone could
@@ -189,7 +189,7 @@ class ElicitationSuite extends FunSuite:
       .groupBy(_.participant)
       .values
       .collect:
-        case first :: second :: _ => (first.value, second.value)
+        case first :: second :: _ => (first.worth, second.worth)
     assert(
       pairs.nonEmpty,
       "some guest should have been asked twice",
@@ -207,7 +207,7 @@ class ElicitationSuite extends FunSuite:
       yield says(guest.name, candidate, Availability.Yes)
     val chosen = round(base.copy(responses = answers))
     assertEquals(chosen.enquiries, List.empty)
-    assertEqualsDouble(chosen.value, 0.0, 1.0e-9)
+    assertEqualsDouble(chosen.worth, 0.0, 1.0e-9)
 
   test("a participant who has answered about every slot is left alone"):
     val answers = slots.map(says("guest1", _, Availability.Probably))
@@ -276,7 +276,7 @@ class ElicitationSuite extends FunSuite:
       chosen.enquiries.sizeIs >= 15,
       s"only ${ chosen.enquiries.size } asked",
     )
-    assert(chosen.enquiries.forall(_.value > 0.0))
+    assert(chosen.enquiries.forall(_.worth > 0.0))
 
   test("a nonsensical objective is bounded rather than obeyed"):
     val absurd = poll(

@@ -1,12 +1,10 @@
 package com.alecdorrington.common
 package model
 
+import com.alecdorrington.common.solve.Fixture.window
 import munit.FunSuite
 
 class WindowSuite extends FunSuite:
-
-  private def window(from: String, to: String): Window =
-    Window(Day.parse(from).get, Day.parse(to).get)
 
   test("length counts both endpoints"):
     assertEquals(

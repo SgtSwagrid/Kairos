@@ -17,9 +17,6 @@ final case class Window(start: Day, end: Day) derives Codec.AsObject:
   /** The number of days spanned by this window, at least `1`. */
   def length: Int = math.max(1, start.until(end) + 1)
 
-  /** Every day in this window, in chronological order. */
-  def days: Seq[Day] = (0 until length).map(start.plus)
-
   /** Whether the given day falls within this window. */
   def contains(day: Day): Boolean = start.epochDay <= day.epochDay &&
     day.epochDay <= end.epochDay

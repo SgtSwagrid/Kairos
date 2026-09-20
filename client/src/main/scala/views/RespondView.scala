@@ -116,13 +116,7 @@ object RespondView extends View:
 
   /** The questionnaire itself. */
   private def sheet(form: Questionnaire): HtmlElement = div(
-    div(
-      cls("masthead"),
-      div(
-        h1(s"Hello, ${ form.name }"),
-        p(cls("lede"), form.title),
-      ),
-    ),
+    masthead(s"Hello, ${ form.name }", form.title)(),
     div(
       cls("stack"),
       div(

@@ -19,17 +19,11 @@ object IndexView extends View:
 
   override protected def content = div(
     cls("page"),
-    div(
-      cls("masthead"),
-      div(
-        h1("Kairos"),
-        p(
-          cls("lede"),
-          "Choose when and where to hold something, by asking the people " +
-            "invited as little as possible.",
-        ),
-      ),
-    ),
+    masthead(
+      "Kairos",
+      "Choose when and where to hold something, by asking the people invited " +
+        "as little as possible.",
+    )(),
     div(
       cls("stack"),
       method,

@@ -96,3 +96,23 @@ class ForecastSuite extends FunSuite:
     val gap     = Forecast.of(beliefs, 0, costly).score -
       Forecast.of(beliefs, 1, costly).score
     assertEqualsDouble(gap, 5.0, 1.0e-9)
+
+  test("an impossible capacity does not make risk and overflow disagree"):
+    val guests = (1 to 6).map(index => participant(s"guest$index")).toList
+    List(-5, 0, Int.MaxValue).foreach: capacity =>
+      val odd      = slot("Odd", "2027-06-11", capacity = capacity)
+      val subject  = poll(List(odd), guests)
+      val forecast = Forecast.of(
+        Belief.from(subject),
+        0,
+        subject.objective,
+      )
+      assert(
+        forecast.risk >= 0.0 && forecast.risk <= 1.0,
+        s"capacity $capacity gave a risk of ${ forecast.risk }",
+      )
+      assert(
+        forecast.risk > 0.0 || forecast.overflow == 0.0,
+        s"capacity $capacity is never overrun yet overflows by ${ forecast
+            .overflow }",
+      )

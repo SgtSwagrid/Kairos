@@ -99,8 +99,16 @@ object Forecast:
     : Forecast =
     val candidate     = belief.slots(slot)
     val probabilities = belief.participants.indices.map(belief(_, slot))
-    val distribution  = poissonBinomial(probabilities)
-    val weighted      = belief
+
+    // Held within the range attendance can actually take, so that a capacity
+    // entered as negative or absurdly large cannot make the risk of overrunning
+    // disagree with the amount by which it would be overrun.
+    val room = math.max(
+      0,
+      math.min(candidate.capacity, probabilities.size),
+    )
+    val distribution = poissonBinomial(probabilities)
+    val weighted     = belief
       .participants
       .indices
       .map(person => belief.participants(person).weight * belief(person, slot))
@@ -110,10 +118,10 @@ object Forecast:
       slot = candidate,
       attendance = probabilities.sum,
       weighted = weighted,
-      overflow = excess(distribution, candidate.capacity),
-      risk = distribution.drop(candidate.capacity + 1).sum,
+      overflow = excess(distribution, room),
+      risk = distribution.drop(room + 1).sum,
       score = weighted - objective.costWeight * candidate.cost -
-        objective.overflowWeight * excess(distribution, candidate.capacity),
+        objective.overflowWeight * excess(distribution, room),
       distribution = distribution,
     )
 

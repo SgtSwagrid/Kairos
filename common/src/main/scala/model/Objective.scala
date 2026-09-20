@@ -59,7 +59,30 @@ final case class Objective
     discretion: Double = 3.0,
     consistency: Double = 0.5,
   )
-  derives Codec.AsObject
+  derives Codec.AsObject:
+
+  /**
+    * This objective with every setting held within the range it is meaningful
+    * over.
+    *
+    * The settings reach the solver from a JSON request and a form with no upper
+    * bounds, and several of them break it outright at the extremes. A prior of
+    * exactly `1` leaves nothing in doubt, so no question is worth asking, the
+    * round comes back empty and the choice declares itself settled without a
+    * single answer; a prior above `1` puts probabilities outside their range
+    * and negative entries in the attendance distribution. A discretion of `0`
+    * makes every named date infinitely cheap, so one with a vanishing worth
+    * outranks a broad question with a real one. None of this is worth a
+    * rejected request when a bound will do.
+    */
+  def bounded: Objective = Objective(
+    costWeight = math.max(0.0, costWeight),
+    overflowWeight = math.max(0.0, overflowWeight),
+    prior = math.min(0.99, math.max(0.01, prior)),
+    dilution = math.min(8.0, math.max(0.0, dilution)),
+    discretion = math.min(1000.0, math.max(0.1, discretion)),
+    consistency = math.min(1.0, math.max(0.0, consistency)),
+  )
 
 object Objective:
 

@@ -83,25 +83,35 @@ class ElicitationSuite extends FunSuite:
     )
 
   test("once the broad questions are answered, dates are named"):
-    val months = Window
-      .months(Window.enclosing(slots.map(_.window)).get)
-      .flatMap(month =>
+    // Every broad question, not merely every month: a slot lying across a month
+    // boundary gets a window of its own, which is still a broad question.
+    val broad = Question
+      .candidates(slots)
+      .collect:
+        case Question.AboutWindow(covering) => covering
+      .flatMap(covering =>
         guests.map(guest =>
           saysOf(
             guest.name,
-            month,
+            covering,
             Availability.Probably,
           ),
         ),
       )
-    val followUp = round(base.copy(responses = months), budget = 20)
+    val followUp = round(base.copy(responses = broad), budget = 20)
     assert(
       followUp
         .enquiries
         .forall:
           case Enquiry(_, Question.AboutSlot(_), _) => true
           case _                                    => false,
-      "with every month already covered, only dates are left to ask about",
+      "with every broad question already answered, only dates should be left, " +
+        s"but got ${ followUp
+            .enquiries
+            .collect { case Enquiry(who, Question.AboutWindow(w), _) =>
+              s"${ who.value }:${ w.show }"
+            }
+            .take(3) }",
     )
 
   test("a round respects its budget and its per-participant limit"):
@@ -147,11 +157,14 @@ class ElicitationSuite extends FunSuite:
         enquiry.toString,
       )
 
-  test("a round is never worth more than perfect information"):
+  test("a round cannot resolve more than is left to resolve"):
+    // Both sides are in bits. Comparing a round's worth against the verdict's
+    // value of information would set bits against weighted heads, two things the
+    // solver is at pains to keep apart.
     val analysis = Analysis.of(base, budget = 20, perParticipant = 2)
     assert(
-      analysis.round.value <= analysis.verdict.information + 1.0e-6,
-      s"${ analysis.round.value } exceeded ${ analysis.verdict.information }",
+      analysis.round.value <= analysis.round.available + 1.0e-6,
+      s"${ analysis.round.value } exceeded ${ analysis.round.available }",
     )
     assert(
       analysis.round.value > 0.0,
@@ -234,3 +247,58 @@ class ElicitationSuite extends FunSuite:
       chosen.enquiries.exists(_.participant == Id[Participant]("vip")),
       "a heavily weighted guest should be among the first asked",
     )
+
+  test("every guest gets a candidate question, however many there are"):
+    // The shortlist is taken a rank at a time across participants, so a flat cut
+    // below their number would leave the same people unasked every round.
+    val crowd  = (1 to 500).map(index => participant(s"guest$index")).toList
+    val chosen = round(
+      poll(slots, crowd),
+      budget = 30,
+      perParticipant = 1,
+    )
+    assert(
+      chosen.recipients >= 20,
+      s"only ${ chosen.recipients } contacted",
+    )
+
+  test("a free named date does not cut a round short"):
+    // Ranking by worth per unit of cost, with the veto applied after, let a
+    // question worth almost nothing win on a vanishing cost and then fail the
+    // veto, ending the round with informative questions unasked.
+    val blunt = poll(
+      slots,
+      guests,
+      Objective(discretion = 0.0),
+    )
+    val chosen = round(blunt, budget = 20, perParticipant = 2)
+    assert(
+      chosen.enquiries.sizeIs >= 15,
+      s"only ${ chosen.enquiries.size } asked",
+    )
+    assert(chosen.enquiries.forall(_.value > 0.0))
+
+  test("a nonsensical objective is bounded rather than obeyed"):
+    val absurd = poll(
+      slots,
+      guests,
+      Objective(
+        prior = 4.0,
+        dilution = -5.0,
+        consistency = 9.0,
+      ),
+    )
+    val analysis = Analysis.of(absurd, budget = 10, perParticipant = 1)
+    analysis
+      .verdict
+      .forecasts
+      .foreach: forecast =>
+        assert(
+          forecast.risk >= 0.0 && forecast.risk <= 1.0,
+          s"risk of ${ forecast.risk }",
+        )
+        assert(
+          !forecast.score.isNaN,
+          "the score should be a number",
+        )
+        assertEqualsDouble(forecast.distribution.sum, 1.0, 1.0e-6)

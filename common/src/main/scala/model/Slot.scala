@@ -44,6 +44,32 @@ final case class Slot
 object Slot:
 
   /**
+    * The given slots with any repeated identifier made distinct.
+    *
+    * An identifier is built from a venue's name and a start date, neither of
+    * which is guaranteed unique: two venues may share a name, and one venue's
+    * openings may overlap. A repeat is quietly destructive, because
+    * [[Poll.slotsById]] keeps only the last of them while the poll still lists
+    * both, so a question about that identifier becomes ambiguous and the maps
+    * of confidence and regret lose an entry.
+    *
+    * @param slots
+    *   The slots to make distinct, in order.
+    *
+    * @return
+    *   The same slots in the same order, with later repeats numbered.
+    */
+  def distinct(slots: Seq[Slot]): List[Slot] = slots
+    .foldLeft((List.empty[Slot], Map.empty[String, Int])):
+      case ((kept, seen), slot) =>
+        val taken = seen.getOrElse(slot.id.value, 0)
+        val id    =
+          if taken == 0 then slot.id else Id[Slot](s"${ slot.id.value }~$taken")
+        (slot.copy(id = id) :: kept, seen.updated(slot.id.value, taken + 1))
+    ._1
+    .reverse
+
+  /**
     * Enumerates the candidate slots offered by a venue, by sliding an event of
     * fixed length across each of the venue's openings.
     *

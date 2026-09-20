@@ -94,7 +94,7 @@ object Belief:
         .toVector
         .map: participant =>
           val answers = poll.responsesBy(participant.id)
-          slots.map(slot => infer(answers, slot, poll.objective)),
+          slots.map(slot => infer(answers, slot, poll.bounds)),
     )
 
   /**
@@ -175,7 +175,7 @@ object Belief:
     )
     : Double =
     val stated = availability.probability
-    if stated <= objective.prior then stated
+    if stated <= Availability.Unsure.probability then stated
     else
       val breadth     = slot.length.toDouble / window.length
       val specificity = math.pow(

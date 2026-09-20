@@ -92,5 +92,20 @@ object Question:
       .enclosing(slots.map(_.window))
       .toList
       .flatMap(Window.months)
-      .filter(month => slots.exists(slot => month.encloses(slot.window)))
-    months.map(AboutWindow(_)) ++ slots.map(slot => AboutSlot(slot.id))
+
+    // A slot lying across a month boundary is enclosed by no month, and a
+    // question only bears on what it encloses. Left as it is, such a slot is
+    // never screened: everything around it is talked down to near-certainty
+    // while it keeps the prior, and it then rises to the top of the ranking for
+    // no better reason than that nobody was asked about it. Each one therefore
+    // gets a window of its own, spanning the months it touches.
+    val bridges = slots
+      .filterNot(slot => months.exists(_.encloses(slot.window)))
+      .flatMap(slot => Window.enclosing(months.filter(_.overlaps(slot.window))))
+      .distinct
+
+    val pooled = (months ++ bridges).filter(window =>
+      slots.exists(slot => window.encloses(slot.window)),
+    )
+    pooled.map(AboutWindow(_)).toList ++
+      slots.map(slot => AboutSlot(slot.id)).toList

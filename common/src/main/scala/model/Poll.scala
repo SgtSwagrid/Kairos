@@ -49,6 +49,14 @@ final case class Poll
   )
   derives Codec.AsObject:
 
+  /**
+    * What the organiser is trying to maximise, held within the range each
+    * setting is meaningful over. Everything in the solver reads the objective
+    * through here rather than through the field, so a poll restored from a
+    * hand-edited file cannot carry a setting that breaks it.
+    */
+  lazy val bounds: Objective = objective.bounded
+
   /** Every slot, indexed by identifier. */
   lazy val slotsById: Map[Id[Slot], Slot] = slots
     .map(slot => slot.id -> slot)

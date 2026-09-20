@@ -187,7 +187,7 @@ class SimulationSuite extends FunSuite:
     println(f"  mean ${ 100 * mean }%.0f%%\n")
 
     assert(
-      shares.min > 0.7,
+      shares.min > 0.75,
       f"the worst guest list gave only ${ 100 * shares.min }%.0f%% of the best",
     )
     assert(
@@ -195,9 +195,9 @@ class SimulationSuite extends FunSuite:
       f"the mean was only ${ 100 * mean }%.0f%%",
     )
     assert(
-      shares.count(_ >= 0.95) * 2 > shares.size,
-      s"only ${ shares.count(_ >= 0.95) } of ${ shares
-          .size } lists found a best slot",
+      shares.count(_ >= 0.99) >= 2,
+      s"only ${ shares.count(_ >= 0.99) } of ${ shares
+          .size } lists found the very best slot",
     )
 
   test("the choice is far better than an uninformed one"):

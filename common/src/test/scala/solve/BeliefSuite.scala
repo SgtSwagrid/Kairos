@@ -144,3 +144,27 @@ class BeliefSuite extends FunSuite:
       settled.doubt(0, 0) < 0.15,
       "a refusal leaves little doubt",
     )
+
+  test("dilution survives a high prior"):
+    // Drawing the line at the prior rather than at the neutral grade made this
+    // unreachable: above a prior of 0.95 every grade counted as negative, the
+    // dilution below became dead code, and pooled answers of any width
+    // transferred at face value without anything saying so.
+    val eager = base.copy(objective = Objective(prior = 0.9))
+    def pooled(covering: Window): Double = Belief.from(
+      eager.copy(responses = List(saysOf("ada", covering, Availability.Yes))),
+    )(0, 0)
+
+    assert(
+      pooled(early) > pooled(june),
+      s"${ pooled(early) } should exceed ${ pooled(
+          june,
+        ) }: a narrower window " + "is diluted less",
+    )
+
+  test("a pooled refusal still carries at a high prior"):
+    val eager = base.copy(objective = Objective(prior = 0.96))
+    val wide  = Belief.from(
+      eager.copy(responses = List(saysOf("ada", june, Availability.No))),
+    )
+    assertEquals(wide(0, 0), Availability.No.probability)

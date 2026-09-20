@@ -89,15 +89,17 @@ final case class Draft
   def toPoll(id: Id[Poll]): Poll = Poll(
     id = id,
     title = title,
-    slots = venues.flatMap: venue =>
-      Slot.enumerate(
-        venue = venue.name,
-        openings = venue.openings,
-        capacity = venue.capacity,
-        cost = venue.cost,
-        length = length,
-        stride = stride,
-      ),
+    slots = Slot.distinct(
+      venues.flatMap: venue =>
+        Slot.enumerate(
+          venue = venue.name,
+          openings = venue.openings,
+          capacity = venue.capacity,
+          cost = venue.cost,
+          length = length,
+          stride = stride,
+        ),
+    ),
     participants = participants
       .zipWithIndex
       .map: (participant, index) =>

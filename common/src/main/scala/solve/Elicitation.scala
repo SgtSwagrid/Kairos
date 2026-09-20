@@ -74,16 +74,26 @@ final case class Round
 object Elicitation:
 
   /** The greatest number of candidate questions to evaluate at each step. */
-  private val Shortlist = 400
+  private val Shortlist: Int = 400
 
-  /** The greatest number of options to weigh against one another. */
-  private val Contenders = 12
+  /**
+    * The greatest number of slots to weigh against one another.
+    *
+    * [[uncertainty]] also packs a group and a winner into one key using this as
+    * the radix, which is sound only because a winner is an index into the
+    * contenders and so is always below it. The two uses are tied together; a
+    * larger cap is free, a smaller one must stay above every winner.
+    */
+  private val MaxContenders: Int = 12
+
+  /** The least worth, in bits, for which a question is worth anybody's time. */
+  private val Worthwhile: Double = 1.0e-6
 
   /** The greatest number of worlds to weigh a question against. */
-  private val Resolution = 1000
+  private val Resolution: Int = 1000
 
   /** The fewest worlds a group must hold before it is worth subdividing. */
-  private val Grain = 25
+  private val Grain: Int = 25
 
   /**
     * Chooses the questions worth asking next.
@@ -212,8 +222,8 @@ object Elicitation:
             val gain = baselines.getOrElse(participant, plain) -
               uncertainty(refined, winners)
             (participant, question, refined, gain, gain / cost(question, poll))
-          .maxByOption(_._5)
-          .filter(_._4 > 1.0e-6) match
+          .filter(_._4 > Worthwhile)
+          .maxByOption(_._5) match
             case None => (groups, chosen)
             case Some((participant, question, refined, gain, _)) =>
               val who = poll.participants(participant).id
@@ -252,7 +262,7 @@ object Elicitation:
     */
   private def cost(question: Question, poll: Poll): Double = question match
     case Question.AboutWindow(_) => 1.0
-    case Question.AboutSlot(_)   => math.max(1.0e-6, poll.objective.discretion)
+    case Question.AboutSlot(_)   => poll.bounds.discretion
 
   /**
     * The worlds against which questions are weighed, thinned evenly to at most
@@ -285,10 +295,25 @@ object Elicitation:
     def confidence(slot: Int): Double = verdict
       .confidence
       .getOrElse(ensemble.belief.slots(slot).id, 0.0)
-    val ranked = ensemble.belief.slots.indices.sortBy(slot => -confidence(slot))
+    // Ranked by expected value first, so that where several slots are equally
+    // confident — which before anybody answers is nearly all of them — the ones
+    // kept are the ones actually worth choosing between, rather than whichever
+    // the venues happened to be listed in.
+    val worth = verdict
+      .forecasts
+      .zipWithIndex
+      .map((forecast, rank) => forecast.slot.id -> rank)
+      .toMap
+    val ranked = ensemble
+      .belief
+      .slots
+      .indices
+      .sortBy(slot =>
+        (-confidence(slot), worth.getOrElse(ensemble.belief.slots(slot).id, 0)),
+      )
     val plausible = ranked.filter(confidence(_) >= 0.01)
     (if plausible.sizeIs >= 2 then plausible else ranked.take(2))
-      .take(Contenders)
+      .take(MaxContenders)
       .toVector
 
   /**
@@ -373,10 +398,14 @@ object Elicitation:
       .map(_._2.sortBy(-_._4))
     val depth = byParticipant.map(_.size).maxOption.getOrElse(0)
 
+    // At least as many as there are participants, so that the cut never falls
+    // inside the first rank. It is rank-major, so a flat limit below the number
+    // of participants would leave everybody past it with no candidate at all —
+    // deterministically the same people every round.
     (0 until depth)
       .toVector
       .flatMap(rank => byParticipant.flatMap(_.lift(rank)))
-      .take(Shortlist)
+      .take(math.max(Shortlist, byParticipant.size))
       .map: (participant, question, bearing, _) =>
         val answers = sampled.map(ensemble.any(_, participant, bearing))
         (participant, question, answers)
@@ -405,10 +434,21 @@ object Elicitation:
       answers: Array[Boolean],
     )
     : Array[Int] =
-    val sizes = groups.groupMapReduce(identity)(_ => 1)(_ + _)
+    val sizes    = groups.groupMapReduce(identity)(_ => 1)(_ + _)
+    val agreeing = groups
+      .indices
+      .filter(answers)
+      .groupMapReduce(groups)(_ => 1)(_ + _)
+      .withDefaultValue(0)
+
+    def divisible(group: Int): Boolean = math.min(
+      agreeing(group),
+      sizes(group) - agreeing(group),
+    ) >= Grain
+
     Array.tabulate(groups.length): world =>
       val group = groups(world)
-      if sizes(group) < 2 * Grain then group * 2
+      if !divisible(group) then group * 2
       else group * 2 + (if answers(world) then 1 else 0)
 
   /**
@@ -432,8 +472,17 @@ object Elicitation:
       sampled: Array[Int],
       contending: Vector[Int],
     )
-    : Array[Int] = sampled.map: world =>
-    contending.indices.maxBy(slot => ensemble.score(world, contending(slot)))
+    : Array[Int] = sampled
+    .zipWithIndex
+    .map: (world, index) =>
+      val scores  = contending.map(ensemble.score(world, _))
+      val highest = scores.max
+      val level   = scores.indices.filter(slot => scores(slot) == highest)
+      // Ties are shared out across the worlds that hold them rather than always
+      // going to the first slot. Awarding them all to one makes a field of
+      // evenly matched slots look decided, leaving no uncertainty for a question
+      // to resolve and so no question worth asking.
+      level(index % level.size)
 
   /**
     * How uncertain it is which option wins, in bits, averaged over the groups
@@ -461,12 +510,12 @@ object Elicitation:
     while world < groups.length do
       val group = groups(world).toLong
       sizes(group) = sizes.getOrElse(group, 0) + 1
-      val pair = group * Contenders + winners(world)
+      val pair = group * MaxContenders + winners(world)
       joint(pair) = joint.getOrElse(pair, 0) + 1
       world += 1
 
     val total = groups.length.toDouble
     -joint.foldLeft(0.0): (sum, entry) =>
       val (pair, count) = entry
-      val share         = count.toDouble / sizes(pair / Contenders)
+      val share         = count.toDouble / sizes(pair / MaxContenders)
       sum + (count / total) * math.log(share) / math.log(2)

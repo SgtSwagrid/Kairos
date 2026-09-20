@@ -79,3 +79,31 @@ class WindowSuite extends FunSuite:
     val built = Window.of(Day.parse("2027-06-11").get, 3)
     assertEquals(built.end.iso, "2027-06-13")
     assertEquals(built.length, 3)
+
+  test("a slot across a month boundary still gets a pooled question"):
+    // Otherwise it is never screened, keeps the prior while everything around it
+    // is talked down, and rises to the top for want of anyone being asked.
+    val straddling = Slot(
+      id = Id("Hut@2027-07-30"),
+      venue = "Hut",
+      window = window("2027-07-30", "2027-08-01"),
+      capacity = 40,
+      cost = 0,
+    )
+    val within = Slot(
+      id = Id("Hut@2027-07-09"),
+      venue = "Hut",
+      window = window("2027-07-09", "2027-07-11"),
+      capacity = 40,
+      cost = 0,
+    )
+    val pooled = Question
+      .candidates(List(within, straddling))
+      .collect:
+        case Question.AboutWindow(covered) => covered
+
+    assert(
+      pooled.exists(_.encloses(straddling.window)),
+      s"nothing among ${ pooled.map(_.show) } covers the straddling slot",
+    )
+    assert(pooled.exists(_.encloses(within.window)))

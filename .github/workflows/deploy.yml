@@ -30,11 +30,13 @@ jobs:
   image:
     name: Build Image
     runs-on: ubuntu-latest
+    # The configuration repositories hold these files only to pass them on.
     if: >-
-      github.event_name == 'pull_request' || (vars.DEPLOY_HOST != '' && (
+      (github.event_name == 'pull_request' || (vars.DEPLOY_HOST != '' && (
         github.event_name == 'workflow_dispatch' || (
           github.event.workflow_run.conclusion == 'success' &&
-          github.event.workflow_run.event == 'push')))
+          github.event.workflow_run.event == 'push')))) &&
+      !endsWith(github.event.repository.name, '-config')
     permissions:
       contents: read
       packages: write

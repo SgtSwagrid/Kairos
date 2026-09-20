@@ -221,8 +221,7 @@ object RespondView extends View:
         .map: grade =>
           label(
             cls("choice"),
-            cls.toggle("chosen") <--
-              chosen.signal.map(_.get(subject).contains(grade)),
+            cls("chosen") <-- chosen.signal.map(_.get(subject).contains(grade)),
             input(
               typ("radio"),
               nameAttr(prompt),

@@ -66,6 +66,20 @@ formal background.
 - The forked dev JVM's working directory is `server/`, so the data file path is set
   explicitly via the `data.file` system property in `Subprojects.scala`.
 
+### CI is stricter than `sbt build`
+
+`build-integrity.yml` compiles with `-Werror`, which the local build does not, so a warning that
+looks harmless here fails there. Before pushing, check with:
+
+```bash
+echo 'ThisBuild / scalacOptions ++= Seq("-Werror", "-deprecation")' > werror.sbt
+sbt build
+rm werror.sbt
+```
+
+Laminar's `cls.toggle("x")` is deprecated in favour of `cls("x")`, which now does the same thing;
+that one has already caught us once.
+
 ### Running it
 
 - `sbt dev` then [localhost:8080](http://localhost:8080); click "Create a worked example".

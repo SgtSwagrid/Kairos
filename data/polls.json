@@ -1,0 +1,1903 @@
+[
+  {
+    "id" : "dd6af7024fc94c18774185a2e2962107",
+    "title" : "Mountain reunion",
+    "slots" : [
+      {
+        "id" : "Scheidegg Hut@2027-06-04",
+        "venue" : "Scheidegg Hut",
+        "window" : {
+          "start" : "2027-06-04",
+          "end" : "2027-06-06"
+        },
+        "capacity" : 28,
+        "cost" : 5200.0
+      },
+      {
+        "id" : "Scheidegg Hut@2027-06-11",
+        "venue" : "Scheidegg Hut",
+        "window" : {
+          "start" : "2027-06-11",
+          "end" : "2027-06-13"
+        },
+        "capacity" : 28,
+        "cost" : 5200.0
+      },
+      {
+        "id" : "Scheidegg Hut@2027-06-18",
+        "venue" : "Scheidegg Hut",
+        "window" : {
+          "start" : "2027-06-18",
+          "end" : "2027-06-20"
+        },
+        "capacity" : 28,
+        "cost" : 5200.0
+      },
+      {
+        "id" : "Scheidegg Hut@2027-06-25",
+        "venue" : "Scheidegg Hut",
+        "window" : {
+          "start" : "2027-06-25",
+          "end" : "2027-06-27"
+        },
+        "capacity" : 28,
+        "cost" : 5200.0
+      },
+      {
+        "id" : "Scheidegg Hut@2027-07-02",
+        "venue" : "Scheidegg Hut",
+        "window" : {
+          "start" : "2027-07-02",
+          "end" : "2027-07-04"
+        },
+        "capacity" : 28,
+        "cost" : 5200.0
+      },
+      {
+        "id" : "Scheidegg Hut@2027-07-09",
+        "venue" : "Scheidegg Hut",
+        "window" : {
+          "start" : "2027-07-09",
+          "end" : "2027-07-11"
+        },
+        "capacity" : 28,
+        "cost" : 5200.0
+      },
+      {
+        "id" : "Scheidegg Hut@2027-07-16",
+        "venue" : "Scheidegg Hut",
+        "window" : {
+          "start" : "2027-07-16",
+          "end" : "2027-07-18"
+        },
+        "capacity" : 28,
+        "cost" : 5200.0
+      },
+      {
+        "id" : "Lauterbrunnen Lodge@2027-05-14",
+        "venue" : "Lauterbrunnen Lodge",
+        "window" : {
+          "start" : "2027-05-14",
+          "end" : "2027-05-16"
+        },
+        "capacity" : 40,
+        "cost" : 3800.0
+      },
+      {
+        "id" : "Lauterbrunnen Lodge@2027-05-21",
+        "venue" : "Lauterbrunnen Lodge",
+        "window" : {
+          "start" : "2027-05-21",
+          "end" : "2027-05-23"
+        },
+        "capacity" : 40,
+        "cost" : 3800.0
+      },
+      {
+        "id" : "Lauterbrunnen Lodge@2027-05-28",
+        "venue" : "Lauterbrunnen Lodge",
+        "window" : {
+          "start" : "2027-05-28",
+          "end" : "2027-05-30"
+        },
+        "capacity" : 40,
+        "cost" : 3800.0
+      },
+      {
+        "id" : "Lauterbrunnen Lodge@2027-06-04",
+        "venue" : "Lauterbrunnen Lodge",
+        "window" : {
+          "start" : "2027-06-04",
+          "end" : "2027-06-06"
+        },
+        "capacity" : 40,
+        "cost" : 3800.0
+      },
+      {
+        "id" : "Lauterbrunnen Lodge@2027-06-11",
+        "venue" : "Lauterbrunnen Lodge",
+        "window" : {
+          "start" : "2027-06-11",
+          "end" : "2027-06-13"
+        },
+        "capacity" : 40,
+        "cost" : 3800.0
+      },
+      {
+        "id" : "Lauterbrunnen Lodge@2027-06-18",
+        "venue" : "Lauterbrunnen Lodge",
+        "window" : {
+          "start" : "2027-06-18",
+          "end" : "2027-06-20"
+        },
+        "capacity" : 40,
+        "cost" : 3800.0
+      },
+      {
+        "id" : "Lauterbrunnen Lodge@2027-06-25",
+        "venue" : "Lauterbrunnen Lodge",
+        "window" : {
+          "start" : "2027-06-25",
+          "end" : "2027-06-27"
+        },
+        "capacity" : 40,
+        "cost" : 3800.0
+      },
+      {
+        "id" : "Lauterbrunnen Lodge@2027-08-06",
+        "venue" : "Lauterbrunnen Lodge",
+        "window" : {
+          "start" : "2027-08-06",
+          "end" : "2027-08-08"
+        },
+        "capacity" : 40,
+        "cost" : 3800.0
+      },
+      {
+        "id" : "Lauterbrunnen Lodge@2027-08-13",
+        "venue" : "Lauterbrunnen Lodge",
+        "window" : {
+          "start" : "2027-08-13",
+          "end" : "2027-08-15"
+        },
+        "capacity" : 40,
+        "cost" : 3800.0
+      },
+      {
+        "id" : "Lauterbrunnen Lodge@2027-08-20",
+        "venue" : "Lauterbrunnen Lodge",
+        "window" : {
+          "start" : "2027-08-20",
+          "end" : "2027-08-22"
+        },
+        "capacity" : 40,
+        "cost" : 3800.0
+      },
+      {
+        "id" : "Lauterbrunnen Lodge@2027-08-27",
+        "venue" : "Lauterbrunnen Lodge",
+        "window" : {
+          "start" : "2027-08-27",
+          "end" : "2027-08-29"
+        },
+        "capacity" : 40,
+        "cost" : 3800.0
+      },
+      {
+        "id" : "Grindelwald Farmhouse@2027-07-02",
+        "venue" : "Grindelwald Farmhouse",
+        "window" : {
+          "start" : "2027-07-02",
+          "end" : "2027-07-04"
+        },
+        "capacity" : 64,
+        "cost" : 7400.0
+      },
+      {
+        "id" : "Grindelwald Farmhouse@2027-07-09",
+        "venue" : "Grindelwald Farmhouse",
+        "window" : {
+          "start" : "2027-07-09",
+          "end" : "2027-07-11"
+        },
+        "capacity" : 64,
+        "cost" : 7400.0
+      },
+      {
+        "id" : "Grindelwald Farmhouse@2027-07-16",
+        "venue" : "Grindelwald Farmhouse",
+        "window" : {
+          "start" : "2027-07-16",
+          "end" : "2027-07-18"
+        },
+        "capacity" : 64,
+        "cost" : 7400.0
+      },
+      {
+        "id" : "Grindelwald Farmhouse@2027-07-23",
+        "venue" : "Grindelwald Farmhouse",
+        "window" : {
+          "start" : "2027-07-23",
+          "end" : "2027-07-25"
+        },
+        "capacity" : 64,
+        "cost" : 7400.0
+      },
+      {
+        "id" : "Grindelwald Farmhouse@2027-07-30",
+        "venue" : "Grindelwald Farmhouse",
+        "window" : {
+          "start" : "2027-07-30",
+          "end" : "2027-08-01"
+        },
+        "capacity" : 64,
+        "cost" : 7400.0
+      },
+      {
+        "id" : "Grindelwald Farmhouse@2027-08-06",
+        "venue" : "Grindelwald Farmhouse",
+        "window" : {
+          "start" : "2027-08-06",
+          "end" : "2027-08-08"
+        },
+        "capacity" : 64,
+        "cost" : 7400.0
+      },
+      {
+        "id" : "Grindelwald Farmhouse@2027-08-13",
+        "venue" : "Grindelwald Farmhouse",
+        "window" : {
+          "start" : "2027-08-13",
+          "end" : "2027-08-15"
+        },
+        "capacity" : 64,
+        "cost" : 7400.0
+      },
+      {
+        "id" : "Grindelwald Farmhouse@2027-08-20",
+        "venue" : "Grindelwald Farmhouse",
+        "window" : {
+          "start" : "2027-08-20",
+          "end" : "2027-08-22"
+        },
+        "capacity" : 64,
+        "cost" : 7400.0
+      },
+      {
+        "id" : "Grindelwald Farmhouse@2027-08-27",
+        "venue" : "Grindelwald Farmhouse",
+        "window" : {
+          "start" : "2027-08-27",
+          "end" : "2027-08-29"
+        },
+        "capacity" : 64,
+        "cost" : 7400.0
+      },
+      {
+        "id" : "Grindelwald Farmhouse@2027-09-03",
+        "venue" : "Grindelwald Farmhouse",
+        "window" : {
+          "start" : "2027-09-03",
+          "end" : "2027-09-05"
+        },
+        "capacity" : 64,
+        "cost" : 7400.0
+      },
+      {
+        "id" : "Grindelwald Farmhouse@2027-09-10",
+        "venue" : "Grindelwald Farmhouse",
+        "window" : {
+          "start" : "2027-09-10",
+          "end" : "2027-09-12"
+        },
+        "capacity" : 64,
+        "cost" : 7400.0
+      }
+    ],
+    "participants" : [
+      {
+        "id" : "8699366a40b792d4bc2a26188aaf90e2",
+        "name" : "Ada",
+        "weight" : 10.0,
+        "group" : null
+      },
+      {
+        "id" : "a1dd20d77013b364a6dbfa637874101e",
+        "name" : "Ben",
+        "weight" : 10.0,
+        "group" : null
+      },
+      {
+        "id" : "33ab2afde8321393a4dd7765d5846bac",
+        "name" : "Cleo",
+        "weight" : 10.0,
+        "group" : null
+      },
+      {
+        "id" : "c4e0cc6ffb440149a466f295992d0f2e",
+        "name" : "Dara",
+        "weight" : 10.0,
+        "group" : null
+      },
+      {
+        "id" : "8608b7ff82c9ce97fa43121a74add3a9",
+        "name" : "Eli",
+        "weight" : 1.0,
+        "group" : null
+      },
+      {
+        "id" : "20eb2a4ea8e129417f85877db4bd4c07",
+        "name" : "Fay",
+        "weight" : 1.0,
+        "group" : null
+      },
+      {
+        "id" : "5707223f2ee818c3a4d99263ec3c4aa0",
+        "name" : "Gus",
+        "weight" : 1.0,
+        "group" : null
+      },
+      {
+        "id" : "c46184db3a464aa3eedcf9249cee026e",
+        "name" : "Hana",
+        "weight" : 1.0,
+        "group" : null
+      },
+      {
+        "id" : "efac2746e1520152e9e0e5e55df44fcc",
+        "name" : "Ivo",
+        "weight" : 1.0,
+        "group" : null
+      },
+      {
+        "id" : "066734fbcf107027e6d4acb32d59f001",
+        "name" : "Jun",
+        "weight" : 1.0,
+        "group" : null
+      },
+      {
+        "id" : "ba9071fc334236d4d1137adceac8176b",
+        "name" : "Kit",
+        "weight" : 1.0,
+        "group" : null
+      },
+      {
+        "id" : "778454d2b98b1d53e96b0203327e5038",
+        "name" : "Lena",
+        "weight" : 1.0,
+        "group" : null
+      },
+      {
+        "id" : "a19c0adf8a9048354c7d399cf5332785",
+        "name" : "Milo",
+        "weight" : 1.0,
+        "group" : null
+      },
+      {
+        "id" : "0d94dbc8028bba47675b1f3b3b03ae50",
+        "name" : "Nia",
+        "weight" : 1.0,
+        "group" : null
+      },
+      {
+        "id" : "7487b346c8f1036f315e2d8e4bc91355",
+        "name" : "Omar",
+        "weight" : 1.0,
+        "group" : null
+      },
+      {
+        "id" : "7a44423d8f4d640d43f5de346deac487",
+        "name" : "Pia",
+        "weight" : 1.0,
+        "group" : null
+      },
+      {
+        "id" : "0005541e519389937dd52e1c9ca2ef4a",
+        "name" : "Quinn",
+        "weight" : 1.0,
+        "group" : null
+      },
+      {
+        "id" : "a5131f863b9dd393ab065ba4c60e1a3b",
+        "name" : "Rafa",
+        "weight" : 1.0,
+        "group" : null
+      },
+      {
+        "id" : "b74bb8273f1b3efa2068145893f23962",
+        "name" : "Sena",
+        "weight" : 1.0,
+        "group" : null
+      },
+      {
+        "id" : "b5004b96fdc305cbb33739c1034ac7e2",
+        "name" : "Tariq",
+        "weight" : 1.0,
+        "group" : null
+      },
+      {
+        "id" : "57bb459655321317dcd57a65dbc97cf9",
+        "name" : "Uma",
+        "weight" : 1.0,
+        "group" : null
+      },
+      {
+        "id" : "236b09fb315d91eae233fa01355306a5",
+        "name" : "Vik",
+        "weight" : 1.0,
+        "group" : null
+      },
+      {
+        "id" : "a51ad7e2a20186a92b225531fad15172",
+        "name" : "Wren",
+        "weight" : 1.0,
+        "group" : null
+      },
+      {
+        "id" : "e678426708eed4e98a25a30ead2a4011",
+        "name" : "Xan",
+        "weight" : 1.0,
+        "group" : null
+      },
+      {
+        "id" : "afbbbc110ff4758124528b008f73ef9e",
+        "name" : "Yara",
+        "weight" : 1.0,
+        "group" : null
+      },
+      {
+        "id" : "5bf0f071a8485254a1d3679d9bdbacc6",
+        "name" : "Zoë",
+        "weight" : 1.0,
+        "group" : null
+      },
+      {
+        "id" : "bf3a6b3f0522bf819ba96c3db61fa53f",
+        "name" : "Arun",
+        "weight" : 1.0,
+        "group" : null
+      },
+      {
+        "id" : "e6c14ca0c11c534707f839fe65181445",
+        "name" : "Bea",
+        "weight" : 1.0,
+        "group" : null
+      },
+      {
+        "id" : "953a492e043ce518b55aaa00498fc156",
+        "name" : "Caro",
+        "weight" : 1.0,
+        "group" : null
+      },
+      {
+        "id" : "45fb042aaea571f06df9345c6d30bced",
+        "name" : "Dev",
+        "weight" : 1.0,
+        "group" : null
+      },
+      {
+        "id" : "988fc694bae4eb6088de91e72348565f",
+        "name" : "Esme",
+        "weight" : 1.0,
+        "group" : null
+      },
+      {
+        "id" : "6725a237f53ca7b0e66e346fef890f10",
+        "name" : "Finn",
+        "weight" : 1.0,
+        "group" : null
+      }
+    ],
+    "responses" : [
+      {
+        "participant" : "c4e0cc6ffb440149a466f295992d0f2e",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-05-14",
+              "end" : "2027-05-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "c4e0cc6ffb440149a466f295992d0f2e",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-08-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "5707223f2ee818c3a4d99263ec3c4aa0",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-06-01",
+              "end" : "2027-06-30"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "5707223f2ee818c3a4d99263ec3c4aa0",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-05-14",
+              "end" : "2027-05-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "33ab2afde8321393a4dd7765d5846bac",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-07-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "33ab2afde8321393a4dd7765d5846bac",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-05-14",
+              "end" : "2027-05-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "236b09fb315d91eae233fa01355306a5",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-05-14",
+              "end" : "2027-05-31"
+            }
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "236b09fb315d91eae233fa01355306a5",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-07-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "45fb042aaea571f06df9345c6d30bced",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-05-14",
+              "end" : "2027-05-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "45fb042aaea571f06df9345c6d30bced",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-08-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "a1dd20d77013b364a6dbfa637874101e",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-06-01",
+              "end" : "2027-06-30"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "a1dd20d77013b364a6dbfa637874101e",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-07-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "a19c0adf8a9048354c7d399cf5332785",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-05-14",
+              "end" : "2027-05-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "a19c0adf8a9048354c7d399cf5332785",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-06-01",
+              "end" : "2027-06-30"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "8699366a40b792d4bc2a26188aaf90e2",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-05-14",
+              "end" : "2027-05-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "8699366a40b792d4bc2a26188aaf90e2",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-07-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "b5004b96fdc305cbb33739c1034ac7e2",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-06-01",
+              "end" : "2027-06-30"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "b5004b96fdc305cbb33739c1034ac7e2",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-08-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "ba9071fc334236d4d1137adceac8176b",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-05-14",
+              "end" : "2027-05-31"
+            }
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "ba9071fc334236d4d1137adceac8176b",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-06-01",
+              "end" : "2027-06-30"
+            }
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "066734fbcf107027e6d4acb32d59f001",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-07-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "066734fbcf107027e6d4acb32d59f001",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-05-14",
+              "end" : "2027-05-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "7487b346c8f1036f315e2d8e4bc91355",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-07-31"
+            }
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "7487b346c8f1036f315e2d8e4bc91355",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-08-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "c46184db3a464aa3eedcf9249cee026e",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-08-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "c46184db3a464aa3eedcf9249cee026e",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-07-31"
+            }
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "20eb2a4ea8e129417f85877db4bd4c07",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-06-01",
+              "end" : "2027-06-30"
+            }
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "20eb2a4ea8e129417f85877db4bd4c07",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-08-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "6725a237f53ca7b0e66e346fef890f10",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-07-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "6725a237f53ca7b0e66e346fef890f10",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-08-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "953a492e043ce518b55aaa00498fc156",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-08-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "953a492e043ce518b55aaa00498fc156",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-07-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "8608b7ff82c9ce97fa43121a74add3a9",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-07-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "8608b7ff82c9ce97fa43121a74add3a9",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-05-14",
+              "end" : "2027-05-31"
+            }
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "e6c14ca0c11c534707f839fe65181445",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "e6c14ca0c11c534707f839fe65181445",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-08-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "0d94dbc8028bba47675b1f3b3b03ae50",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-07-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "0d94dbc8028bba47675b1f3b3b03ae50",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-08-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "efac2746e1520152e9e0e5e55df44fcc",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-06-01",
+              "end" : "2027-06-30"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "efac2746e1520152e9e0e5e55df44fcc",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-08-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "a1dd20d77013b364a6dbfa637874101e",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-05-14",
+              "end" : "2027-05-31"
+            }
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "a1dd20d77013b364a6dbfa637874101e",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "33ab2afde8321393a4dd7765d5846bac",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "33ab2afde8321393a4dd7765d5846bac",
+        "question" : {
+          "AboutSlot" : {
+            "slot" : "Lauterbrunnen Lodge@2027-05-28"
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "b74bb8273f1b3efa2068145893f23962",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-05-14",
+              "end" : "2027-05-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "b74bb8273f1b3efa2068145893f23962",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-07-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "afbbbc110ff4758124528b008f73ef9e",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-07-31"
+            }
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "afbbbc110ff4758124528b008f73ef9e",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-08-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "c4e0cc6ffb440149a466f295992d0f2e",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-07-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "c4e0cc6ffb440149a466f295992d0f2e",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "7a44423d8f4d640d43f5de346deac487",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-07-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "7a44423d8f4d640d43f5de346deac487",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-05-14",
+              "end" : "2027-05-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "57bb459655321317dcd57a65dbc97cf9",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-08-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "57bb459655321317dcd57a65dbc97cf9",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-05-14",
+              "end" : "2027-05-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "e678426708eed4e98a25a30ead2a4011",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "e678426708eed4e98a25a30ead2a4011",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-05-14",
+              "end" : "2027-05-31"
+            }
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "8699366a40b792d4bc2a26188aaf90e2",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-08-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "8699366a40b792d4bc2a26188aaf90e2",
+        "question" : {
+          "AboutSlot" : {
+            "slot" : "Lauterbrunnen Lodge@2027-05-28"
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "a19c0adf8a9048354c7d399cf5332785",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-07-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "a19c0adf8a9048354c7d399cf5332785",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-08-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "a5131f863b9dd393ab065ba4c60e1a3b",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "a5131f863b9dd393ab065ba4c60e1a3b",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-05-14",
+              "end" : "2027-05-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "778454d2b98b1d53e96b0203327e5038",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "778454d2b98b1d53e96b0203327e5038",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-05-14",
+              "end" : "2027-05-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "236b09fb315d91eae233fa01355306a5",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "b5004b96fdc305cbb33739c1034ac7e2",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "b5004b96fdc305cbb33739c1034ac7e2",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-05-14",
+              "end" : "2027-05-31"
+            }
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "8608b7ff82c9ce97fa43121a74add3a9",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "8608b7ff82c9ce97fa43121a74add3a9",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-08-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "bf3a6b3f0522bf819ba96c3db61fa53f",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-08-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "bf3a6b3f0522bf819ba96c3db61fa53f",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-07-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "0005541e519389937dd52e1c9ca2ef4a",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-05-14",
+              "end" : "2027-05-31"
+            }
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "0005541e519389937dd52e1c9ca2ef4a",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-08-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "988fc694bae4eb6088de91e72348565f",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-05-14",
+              "end" : "2027-05-31"
+            }
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "988fc694bae4eb6088de91e72348565f",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-07-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "5bf0f071a8485254a1d3679d9bdbacc6",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-05-14",
+              "end" : "2027-05-31"
+            }
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "5bf0f071a8485254a1d3679d9bdbacc6",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-07-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "ba9071fc334236d4d1137adceac8176b",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-07-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "ba9071fc334236d4d1137adceac8176b",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-08-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "20eb2a4ea8e129417f85877db4bd4c07",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "33ab2afde8321393a4dd7765d5846bac",
+        "question" : {
+          "AboutSlot" : {
+            "slot" : "Scheidegg Hut@2027-07-09"
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "33ab2afde8321393a4dd7765d5846bac",
+        "question" : {
+          "AboutSlot" : {
+            "slot" : "Scheidegg Hut@2027-07-02"
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "c46184db3a464aa3eedcf9249cee026e",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "988fc694bae4eb6088de91e72348565f",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "988fc694bae4eb6088de91e72348565f",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-08-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "57bb459655321317dcd57a65dbc97cf9",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-07-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "57bb459655321317dcd57a65dbc97cf9",
+        "question" : {
+          "AboutSlot" : {
+            "slot" : "Grindelwald Farmhouse@2027-08-20"
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "a1dd20d77013b364a6dbfa637874101e",
+        "question" : {
+          "AboutSlot" : {
+            "slot" : "Scheidegg Hut@2027-07-02"
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "a1dd20d77013b364a6dbfa637874101e",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-08-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "7a44423d8f4d640d43f5de346deac487",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-08-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "7a44423d8f4d640d43f5de346deac487",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "7487b346c8f1036f315e2d8e4bc91355",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "b5004b96fdc305cbb33739c1034ac7e2",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-07-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "953a492e043ce518b55aaa00498fc156",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "c4e0cc6ffb440149a466f295992d0f2e",
+        "question" : {
+          "AboutSlot" : {
+            "slot" : "Grindelwald Farmhouse@2027-07-23"
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "c4e0cc6ffb440149a466f295992d0f2e",
+        "question" : {
+          "AboutSlot" : {
+            "slot" : "Grindelwald Farmhouse@2027-07-02"
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "a5131f863b9dd393ab065ba4c60e1a3b",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-08-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "b74bb8273f1b3efa2068145893f23962",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "e678426708eed4e98a25a30ead2a4011",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-08-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "e678426708eed4e98a25a30ead2a4011",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-07-31"
+            }
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "8699366a40b792d4bc2a26188aaf90e2",
+        "question" : {
+          "AboutSlot" : {
+            "slot" : "Scheidegg Hut@2027-07-09"
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "8699366a40b792d4bc2a26188aaf90e2",
+        "question" : {
+          "AboutSlot" : {
+            "slot" : "Scheidegg Hut@2027-07-16"
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "0005541e519389937dd52e1c9ca2ef4a",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "778454d2b98b1d53e96b0203327e5038",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-07-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "5707223f2ee818c3a4d99263ec3c4aa0",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-07-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "5707223f2ee818c3a4d99263ec3c4aa0",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-08-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "45fb042aaea571f06df9345c6d30bced",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-07-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "45fb042aaea571f06df9345c6d30bced",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "bf3a6b3f0522bf819ba96c3db61fa53f",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "efac2746e1520152e9e0e5e55df44fcc",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "066734fbcf107027e6d4acb32d59f001",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-08-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "066734fbcf107027e6d4acb32d59f001",
+        "question" : {
+          "AboutSlot" : {
+            "slot" : "Grindelwald Farmhouse@2027-07-16"
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "a19c0adf8a9048354c7d399cf5332785",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "afbbbc110ff4758124528b008f73ef9e",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "ba9071fc334236d4d1137adceac8176b",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "e6c14ca0c11c534707f839fe65181445",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-07-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "e6c14ca0c11c534707f839fe65181445",
+        "question" : {
+          "AboutSlot" : {
+            "slot" : "Grindelwald Farmhouse@2027-08-27"
+          }
+        },
+        "availability" : "Yes"
+      },
+      {
+        "participant" : "20eb2a4ea8e129417f85877db4bd4c07",
+        "question" : {
+          "AboutSlot" : {
+            "slot" : "Grindelwald Farmhouse@2027-08-27"
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "20eb2a4ea8e129417f85877db4bd4c07",
+        "question" : {
+          "AboutSlot" : {
+            "slot" : "Grindelwald Farmhouse@2027-07-09"
+          }
+        },
+        "availability" : "No"
+      },
+      {
+        "participant" : "a51ad7e2a20186a92b225531fad15172",
+        "question" : {
+          "AboutWindow" : {
+            "window" : {
+              "start" : "2027-07-01",
+              "end" : "2027-08-31"
+            }
+          }
+        },
+        "availability" : "Yes"
+      }
+    ],
+    "objective" : {
+      "costWeight" : 0.0,
+      "overflowWeight" : 3.0,
+      "prior" : 0.25,
+      "dilution" : 0.5,
+      "discretion" : 3.0,
+      "consistency" : 0.5
+    },
+    "pending" : [
+    ],
+    "roundsSent" : 3
+  }
+]

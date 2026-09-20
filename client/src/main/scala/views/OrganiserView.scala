@@ -283,7 +283,7 @@ object OrganiserView extends View:
           .take(8)
           .map: forecast =>
             tr(
-              cls.toggle("leading") := leader.contains(forecast.slot.id),
+              cls("leading") := leader.contains(forecast.slot.id),
               td(forecast.slot.venue),
               td(
                 cls("small"),

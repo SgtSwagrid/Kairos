@@ -50,6 +50,24 @@ final case class Belief
     val p = apply(participant, slot)
     4 * p * (1 - p)
 
+  /**
+    * This belief as it would stand if everybody had answered directly about
+    * every slot, each entry rounded to the answer it presently leans towards.
+    *
+    * This is what "as much as could ever be learned" looks like. It is not
+    * certainty, and deliberately so: a direct answer still only says
+    * [[Availability.Yes]] or [[Availability.No]], neither of which is a
+    * promise. The residual doubt left here is therefore the part no amount of
+    * asking can remove, which is exactly what [[Verdict.noise]] needs in order
+    * to tell an unanswered question from an unanswerable one.
+    */
+  def saturated: Belief = copy(probability =
+    probability.map(_.map(chance =>
+      if chance > 0.5 then Availability.Yes.probability
+      else Availability.No.probability,
+    )),
+  )
+
 object Belief:
 
   /**

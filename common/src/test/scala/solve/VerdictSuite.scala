@@ -15,11 +15,15 @@ class VerdictSuite extends FunSuite:
     .toList
 
   private def verdict(responses: List[Response]): Verdict =
-    val subject = poll(List(good, bad), guests).copy(responses = responses)
-    Verdict.of(Ensemble.draw(
-      Belief.from(subject),
-      subject.objective,
-    ))
+    advise(poll(List(good, bad), guests).copy(responses = responses))
+
+  /** The advice on a poll, with the irreducible floor measured and removed. */
+  private def advise(subject: Poll): Verdict =
+    val belief = Belief.from(subject)
+    Verdict.of(
+      Ensemble.draw(belief, subject.objective),
+      Ensemble.draw(belief.saturated, subject.objective),
+    )
 
   test("confidence is a distribution over the slots"):
     val advice = verdict(List.empty)
@@ -44,13 +48,16 @@ class VerdictSuite extends FunSuite:
     assert(advice.regret.values.forall(_ >= -1.0e-9))
     assert(advice.regret.values.min >= 0.0)
 
-  test("knowing nothing leaves much to learn and settles nothing"):
+  test("knowing nothing leaves no slot looking certain"):
+    // Note that two interchangeable slots genuinely leave little to learn: a
+    // dozen guests split between them either way, so whichever is chosen is
+    // about as good. It takes a real field of slots before asking pays, which is
+    // what "a poll nobody has answered is not settled" below checks.
     val advice = verdict(List.empty)
     assert(
-      advice.information > Verdict.Tolerance,
+      advice.information > 0.0,
       advice.information,
     )
-    assert(!advice.settled)
     assert(
       advice.confidence.values.max < 0.9,
       "no slot should look certain",
@@ -103,11 +110,8 @@ class VerdictSuite extends FunSuite:
           Availability.Probably,
         ),
       )
-    val subject = poll(List(cramped, roomy), guests).copy(responses = answers)
-    val advice  = Verdict.of(Ensemble.draw(
-      Belief.from(subject),
-      subject.objective,
-    ))
+    val advice =
+      advise(poll(List(cramped, roomy), guests).copy(responses = answers))
     assertEquals(
       advice.recommended.map(_.venue),
       Some("Roomy"),
@@ -129,8 +133,53 @@ class VerdictSuite extends FunSuite:
     )
 
   test("an empty poll is handled without complaint"):
-    val empty  = poll(List.empty, List.empty)
-    val advice = Verdict.of(Ensemble.draw(Belief.from(empty), empty.objective))
+    val advice = advise(poll(List.empty, List.empty))
     assertEquals(advice.recommended, None)
     assertEquals(advice.forecasts, List.empty)
     assertEqualsDouble(advice.information, 0.0, 1.0e-9)
+
+  test("the irreducible floor is measured and taken out of the advice"):
+    // Everybody has answered directly about every slot, so nothing is left to
+    // learn. What spread remains is the chance that a guest who says they can
+    // come does not, which no further question could resolve.
+    val many  = (1 to 32).map(index => participant(s"guest$index")).toList
+    val dates = (0 until 24)
+      .map(index =>
+        slot(
+          "Venue",
+          Day.ofEpochDay(20940 + 7 * index).iso,
+        ),
+      )
+      .toList
+    val answers =
+      for
+        person <- many
+        date   <- dates
+      yield says(person.name, date, Availability.Yes)
+
+    val advice = advise(poll(dates, many).copy(responses = answers))
+
+    assert(
+      advice.noise > Verdict.Tolerance,
+      s"the floor is ${ advice.noise }",
+    )
+    assert(
+      advice.settled,
+      s"nothing is left to learn, yet information is ${ advice.information }",
+    )
+
+  test("a poll nobody has answered is not settled by the correction"):
+    val many  = (1 to 32).map(index => participant(s"guest$index")).toList
+    val dates = (0 until 24)
+      .map(index =>
+        slot(
+          "Venue",
+          Day.ofEpochDay(20940 + 7 * index).iso,
+        ),
+      )
+      .toList
+    val advice = advise(poll(dates, many))
+    assert(
+      !advice.settled,
+      s"information is only ${ advice.information }",
+    )

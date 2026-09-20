@@ -66,7 +66,11 @@ object Analysis:
 
     val belief   = Belief.from(poll)
     val ensemble = Ensemble.draw(belief, poll.objective)
-    val verdict  = Verdict.of(ensemble, tolerance)
+
+    // A second ensemble, drawn as though everybody had already answered, which
+    // measures how much of the spread between slots no answer could remove.
+    val saturated = Ensemble.draw(belief.saturated, poll.objective)
+    val verdict   = Verdict.of(ensemble, saturated, tolerance)
 
     val round =
       if poll.slots.isEmpty || poll.participants.isEmpty then

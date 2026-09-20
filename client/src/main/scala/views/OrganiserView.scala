@@ -187,21 +187,42 @@ object OrganiserView extends View:
         cls("note"),
         cls("settled"),
         strong("Stop asking and book. "),
-        "Knowing everybody's diary perfectly would improve on this choice by " +
-          s"only ${ decimal(
-              verdict.information,
-            ) } guests, which is less than " +
+        "Having everybody's answers would improve on this choice by only " +
+          s"${ decimal(verdict.information) } guests, which is less than " +
           "another round of questions is worth.",
+        irreducible(verdict),
       )
     else
       div(
         cls("note"),
         strong("Worth another round. "),
-        s"Knowing everybody's diary perfectly would be worth about " +
+        "Having everybody's answers would be worth about " +
           s"${ decimal(verdict.information) } more guests than choosing now. " +
-          "That is the most any further asking could gain, so it is the number to " +
-          "watch: once it is small, stop.",
+          "That is the most any further asking could gain, so it is the " +
+          "number to watch: once it is small, stop.",
+        irreducible(verdict),
       )
+
+  /**
+    * A note on the part of the uncertainty that asking cannot touch, shown only
+    * where it is large enough to matter. Without it the headline figure looks
+    * unaccountably small on a poll most people have already answered.
+    *
+    * @param verdict
+    *   The advice whose irreducible part is to be described.
+    *
+    * @return
+    *   An element describing it, or nothing where it is negligible.
+    */
+  private def irreducible(verdict: Verdict): Modifier[HtmlElement] = Option
+    .when(verdict.noise > 0.1)(div(
+      cls("tiny"),
+      cls("faint"),
+      marginTop("8px"),
+      s"A further ${ decimal(verdict.noise) } guests' worth of uncertainty " +
+        "is down to people who can come not turning up, which no question " +
+        "would settle. It is excluded from the figure above.",
+    ))
 
   /** How the options stand against one another. */
   private def ranking(report: Report): HtmlElement =
